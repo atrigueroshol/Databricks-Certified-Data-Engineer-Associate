@@ -35,3 +35,43 @@ Es un componente que esta desplegado en el cluster como parte del runtime. Cuand
 -   **Delta Log**  
     El _Delta Log_ guarda un **registro de todas las transacciones** realizadas sobre la tabla y actúa como la **fuente de verdad** de su estado.  
     Cada fichero **JSON** contiene información sobre la operación realizada (add, remove, metadata, etc.) y los **ficheros de datos afectados**
+
+### Crear Tablas
+```sql
+CREATE TABLE users(
+id INTEGER,
+name STRING,
+surname STRING,
+age INTEGER
+)
+```
+### Insertar Datos
+```sql
+INSERT INTO  users (id, name, surname, age) VALUES
+(1, 'Ana', 'Gómez', 28),
+(2, 'Luis', 'Martínez', 35),
+(3, 'Carla', 'Rodríguez', 22),
+(4, 'Javier', 'Pérez', 40),
+(5, 'Sofía', 'López', 30);
+```
+### Descripcción de la tabla
+```sql
+DESCRIBE  DETAIL  users
+```
+### Consultar versiones Antiguas
+```sql
+
+```
+### Compactar ficheros
+```sql
+
+```
+### Indexación de ficheros
+```sql
+
+```
+### Limpieza de ficheros
+```sql
+
+```
+
