@@ -113,4 +113,41 @@ Con la operación **VACUUM** eliminamos los ficheros de datos que ya no estan en
 ```sql
 VACUUM users
 ```
+#### DATA FILE LAYOUT 
+Data file layout es la organización física de los ficheros que forman una tabla Delta. Optimizando la capa de data files se puede mejorar significativamente el tiempo de ejecución y el consumo de recursos** de las consultas.
+
+Vamos a estudiar tres técnicas principales para optimizarla.
+
+La primera técnica es el **partitioning**.  
+Databricks crea una partición por cada valor distinto de la columna por la que se particiona, generando una carpeta por cada valor de la partición.
+
+`CREATE TABLE users (
+  id INTEGER,
+  name STRING,
+  surname STRING,
+  age INTEGER ) USING DELTA
+PARTITIONED BY (age);` 
+ 
+El particionado puede mejorar mucho el rendimiento de las consultas cuando las tablas Delta son grandes, ya que permite pruning de particiones (solo se leen las carpetas necesarias).
+Buenas prácticas
+-   Particionar por columnas con baja cardinalidad
+-   Usar columnas frecuentes en cláusulas `WHERE`
+-   Evitar particionar por columnas con muchos valores distintos
+    
+Si se particiona por columnas de alta cardinalidad, se generan demasiadas carpetas y el rendimiento empeora.
+
+Otra técnica es **Z-ORDER**, que reorganiza los datos dentro de los ficheros para mejorar el rendimiento de las consultas.
+
+`OPTIMIZE users
+ZORDER BY (surname, age);` 
+
+-   Agrupa valores similares físicamente en los mismos archivos
+-   Reduce la cantidad de datos leídos en filtros (`WHERE`) y joins
+-   Complementa al particionado (no lo reemplaza)
+
+Es efectivo cuando las columnas usadas en filtros o joins tienen media o alta cardinalidad y cuando las consultas combinan varias columnas.
+
+Como desventajas tiene que cada ejecución de `OPTIMIZE ZORDER` reescribe archivos. Tras insertar nuevos datos, es necesario volver a ejecutar `OPTIMIZE`. Puede ser costoso a nivel de cómputo, por lo que no debe ejecutarse continuamente
+
+La última técnica es Liquid Clustering que consiste en una mejor versión de Z-order con más flexibilidad y mejor rendimiento.
 
