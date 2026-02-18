@@ -55,23 +55,62 @@ INSERT INTO  users (id, name, surname, age) VALUES
 (5, 'Sofía', 'López', 30);
 ```
 ### Descripcción de la tabla
+La operación **DESCRIBE DETAIL** devuelve metadatos completos de la tabla: 
 ```sql
-DESCRIBE  DETAIL  users
+DESCRIBE DETAIL  users
 ```
-### Consultar versiones Antiguas
+Ejemplo.
+```
+format: delta
+name: users
+location: dbfs:/user/hive/warehouse/users
+numFiles: 5
+sizeInBytes: 20480
+partitionColumns: []
+```
+### Historial de la tabla
+La operación **DESCRIBE HISTORY** devuelve el historial de cambios de una tabla:
 ```sql
+DESCRIBE HISTORY users
+```
+Ejemplo.
+```
+version | timestamp           | operation | operationMetrics
+-------------------------------------------------------------
+5       | 2026-02-18 10:15:30 | WRITE     | {numOutputRows=5}
+4       | 2026-02-17 18:02:11 | DELETE    | {numDeletedRows=2}
+3       | 2026-02-16 09:40:00 | MERGE     | {numTargetRowsUpdated=3}
 
+```
+### Consultar tabla y versiones Antiguas
+En databricks se puede consultar una tabla y versiones anteriores.
+```sql
+-- VERSION ACTUAL
+SELECT * FROM users;
+--VERSION ANTIGUA
+SELECT * FROM  users VERSION AS OF 1;
+SELECT  *  FROM  users@v1;
+```
+Para saber el número de la versión que queremos consultar podemos utilizar DESCRIBE HISTORY.
+### Restaurar una version antigua
+En databricks podemos restaurar una versión antigua de la tabla con **RESTORE TABLE**.
+```sql
+RESTORE TABLE users TO VERSION AS OF 1;
 ```
 ### Compactar ficheros
+Con **OPTIMIZE** podemos optimizar el rendimiento de las consultas reorganizando los ficheros de datos. Como ya sabemos cada operación sobre una tabla crea un archivo y con OPTIMIZE unifica esos archivos pequeños en archivos más grandes.
 ```sql
-
+OPTIMIZE users;
 ```
 ### Indexación de ficheros
+Para la indexación de nuestos datos debemos utilizar la operación **ZORDER** que reorganiza los datos de los ficheros para mejorar el rendimiento de las consultas. 
 ```sql
-
+OPTIMIZE users
+ZORDER BY (surname, age);
 ```
 ### Limpieza de ficheros
+Con la operación **VACUUM** eliminamos los ficheros de datos que ya no estan en uso. Debemos tener cuidado a la hora de ejecutar este comando ya que una vez hecho no podemos restaurar o consultar versiones anteriores de la tabla.
 ```sql
-
+VACUUM users
 ```
 
