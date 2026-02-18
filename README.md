@@ -113,7 +113,7 @@ Con la operación **VACUUM** eliminamos los ficheros de datos que ya no estan en
 ```sql
 VACUUM users
 ```
-#### DATA FILE LAYOUT 
+### DATA FILE LAYOUT 
 Data file layout es la organización física de los ficheros que forman una tabla Delta. Optimizando la capa de data files se puede mejorar significativamente el tiempo de ejecución y el consumo de recursos** de las consultas.
 
 Vamos a estudiar tres técnicas principales para optimizarla.
