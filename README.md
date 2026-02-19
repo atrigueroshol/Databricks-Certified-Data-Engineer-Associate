@@ -174,4 +174,108 @@ CREATE TABLE sales
 CLUSTER BY (country, order_date);
 # CLUSTER BY AUTO
 ```
+### Bases de datos en Databricks
+
+En Databricks, una base de datos equivale conceptualmente a un schema en el Hive Metastore. Por esta razón, existen dos formas equivalentes de crear una base de datos:
+```sql
+CREATE DATABASE db_name; CREATE SCHEMA db_name; 
+```
+Ambos comandos son sinónimos y producen el mismo resultado.
+
+Hive Metastore
+
+Un schema en el Hive Metastore es un repositorio de metadatos que almacena información sobre:
+-   Bases de datos (schemas)
+-   Tablas   
+-   Columnas   
+-   Particiones
+-   Ubicaciones de almacenamiento
+    
+Cada workspace de Databricks dispone de un almacenamiento asociado (por ejemplo, en cloud object storage) donde se mantiene el Hive Metastore.  
+Por defecto, siempre existe un schema llamado:
+
+`default` 
+
+### Tipos de tablas (Managed y External)
+
+En Databricks existen dos tipos principales de tablas, según cómo se gestione el almacenamiento de los datos.
+
+1.  Managed Tables (tablas administradas)
+ 
+La tabla se crea dentro del directorio del schema.
+
+El metastore gestiona tanto los metadatos como los datos físicos.
+
+Al ejecutar `DROP TABLE`, se eliminan la tabla y los datos del almacenamiento.
+
+Ejemplo conceptual:
+
+`CREATE TABLE sales_managed (
+  id INT,
+  amount DOUBLE );` 
+
+Uso recomendado cuando Databricks es el único sistema que accede a los datos. Se desea una gestión automática del ciclo de vida
+    
+2.  External Tables (tablas externas)
+3. 
+La tabla se crea fuera del directorio del schema, indicando explícitamente la ubicación mediante `LOCATION`.
+
+El metastore solo gestiona los metadatos, no los datos.
+
+Al ejecutar `DROP TABLE`, solo se eliminan los metadatos; los datos permanecen intactos.
+
+Ejemplo:
+
+`CREATE TABLE sales_external (
+  id INT,
+  amount DOUBLE ) USING DELTA
+LOCATION 'abfss://data@storageaccount.dfs.core.windows.net/sales/';`
+
+### CTAS
+Otra de las formas de crear una tabla es mediante el uso de CTAS (Create Table As Select Statement).
+```sql
+CREATE TABLE table_1 AS
+	SELECT col_1, col_3 AS new_col_3 FROM table_2
+```
+La ventaja que tiene es que no se define el esquema manualmente si no que directamente lo infiere del SELECT. Además la tabla ya viene con los datos que obtiene de la consulta.
+
+### Restricciones (Constraints)
+Databricks soporta dos tipos de restricciones sobre las tablas:
+
+ - NOT NULL constraints
+```sql
+#Creando la tabla
+CREATE TABLE customers (
+  customer_id STRING NOT NULL,
+  name STRING,
+  email STRING
+);
+#Sobre una tabla ya creada
+ALTER TABLE customers ALTER COLUMN customer_id SET NOT NULL;
+```
+ - Check constraints
+```sql
+#Creando la tabla
+CREATE TABLE orders (
+  order_id STRING,
+  amount DOUBLE,
+  CONSTRAINT amount_positive CHECK (amount > 0)
+);
+#Sobre una tabla ya creada
+ALTER TABLE orders ADD CONSTRAINT amount_positive CHECK (amount > 0);
+```
+Se debe tener en cuenta que si intentamos crear una restricción sobre una tabla con datos y alguno de las filas no cumple la restricción dará error al crear la restricción. Una vez creada la restricción si intentamos insertar una fila que no comple las condiciones la operación devolverá un error.
+
+### Clonar Deltas
+Existen dos formas de clonar las tablas delta en databricks. Esto nos puede servir para tener un backup o una copia de los datos para hacer pruebas.
+
+ - Deep Clone: Copia los datos y los metadatos de la tabla. Para sincronizar cambios se debe ejecutar de nuevo el comando. Este comando no es eficiente cuando la cantidad de datos es muy grande.
+```sql
+CREATE TABLE table_clone DEEP CLONE source_table
+```
+ - Shallow Clone: Unicamente crea una copia de los delta transactions logs. Es muy útil para hacer pruebas sin correr el riesgo de modificar la tabla original.
+ ```sql
+CREATE TABLE table_clone SHALLOW CLONE source_table
+```
+
 
