@@ -277,5 +277,20 @@ CREATE TABLE table_clone DEEP CLONE source_table
  ```sql
 CREATE TABLE table_clone SHALLOW CLONE source_table
 ```
+### Vistas
+Una vista es una tabla virtual que no tiene datos físicos., es una query de SQL que apunta a las tablas físicas. En databricks hay tres tipos de vistas. 
+
+ - Stored Views: Son objetos persistentes en la base de datos.
+```sql
+CREATE VIEW view_name AS query
+```
+ - Temporary Views: Son objetos que solo persisten durante la sesion de spark. Una vez terminada la sesion se borran.
+```sql
+CREATE TEMP VIEW view_name AS query
+```
+ - Global Temporary Views: Son objetos vinculados al cluster. Mientras el cluster este levantado cualquier notebook puede acceder a la vista.
+```sql
+CREATE GLOBAL TEMP VIEW view_name AS query
+```
 
 
