@@ -149,5 +149,29 @@ Es efectivo cuando las columnas usadas en filtros o joins tienen media o alta ca
 
 Como desventajas tiene que cada ejecución de `OPTIMIZE ZORDER` reescribe archivos. Tras insertar nuevos datos, es necesario volver a ejecutar `OPTIMIZE`. Puede ser costoso a nivel de cómputo, por lo que no debe ejecutarse continuamente
 
-La última técnica es Liquid Clustering que consiste en una mejor versión de Z-order con más flexibilidad y mejor rendimiento.
+La última técnica de optimización es **Liquid Clustering**, que consiste en una evolución del Z-order, ofreciendo mayor flexibilidad, mejor rendimiento y menor sobrecarga operativa.
+
+A diferencia de los enfoques tradicionales Liquid Clustering no es compatible con PARTITIONING ni con ZORDER. El clustering se gestiona de forma dinámica, sin necesidad de reescribir completamente la tabla cada vez que cambian los patrones de acceso. Está especialmente optimizado para cargas de trabajo con consultas analíticas cambiantes.
+
+Para activar o ejecutar el clustering, simplemente se utiliza el comando OPTIMIZE sobre la tabla. No es necesario especificar ZORDER BY.
+
+Las claves de clustering pueden definirse de dos formas:
+1.  Modo manual  
+    Seleccionando las columnas más utilizadas en los filtros (WHERE) y joins de las consultas.
+    
+2.  Modo automático (recomendado)  
+    Databricks analiza el historial de consultas y el acceso a los datos para elegir y ajustar automáticamente las claves de clustering más óptimas.
+  
+```sql
+CREATE TABLE sales
+(
+  order_id STRING,
+  customer_id STRING,
+  country STRING,
+  order_date DATE,
+  amount DOUBLE
+)
+CLUSTER BY (country, order_date);
+# CLUSTER BY AUTO
+```
 
