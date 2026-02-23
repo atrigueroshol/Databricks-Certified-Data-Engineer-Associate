@@ -293,4 +293,35 @@ CREATE TEMP VIEW view_name AS query
 CREATE GLOBAL TEMP VIEW view_name AS query
 ```
 
+---
+Para consultar datos de un archivo en Databricks debemos utilizar lo siguiente:
+```sql
+SELECT  *  FROM file_format.`path`
+```
+Esta consulta funciona solo para los tipos de ficheros _self-describing_ como (JSON, Parquet, etc.), pero no funciona para formatos _non self-describing_ como (CSV, TSV, etc.). En el `path` podemos indicar un fichero (`file.json`), varios ficheros (`file_*.json`) o un directorio completo (`/path/dir`).
+
+Si queremos obtener los datos como strings de ficheros de tipo texto (JSON, CSV, TSV y TXT) podemos utilizar:
+```sql
+SELECT  *  FROM text.`path`
+```
+Si queremos obtener los datos como bytes de ficheros de tipo imagen podemos utilizar:
+```sql
+SELECT  *  FROM binaryFile.`/path/to/file`
+```
+Normalmente, cuando extraemos datos de ficheros externos queremos cargarlos en nuestro lakehouse y, para ello, podemos usar CTAS:
+```sql
+CREATE  TABLE table_name AS  SELECT  *  FROM file_format.`path`
+```
+Cuando usamos CTAS para la creación de tablas no se puede definir el esquema de la tabla ni se soportan opciones del fichero, lo que puede suponer un problema. Por ello existe esta otra opción:
+```sql
+CREATE  TABLE table_name  
+ (col_name1 col_type1, ...)  
+USING data_source  
+OPTIONS (key1 = val1, key2 = val2, ...)  
+LOCATION path
+```
+De esta forma siempre estaremos creando una tabla externa que referencia ficheros almacenados externamente y, por lo tanto, no es una tabla de tipo Delta y pierde las ventajas asociadas a este tipo de tablas. Para solventar esto, una solución consiste en crear una vista temporal y, posteriormente, usar CTAS para crear una tabla a partir de dicha vista.
+
+En la última versión de Databricks se ha introducido una función llamada `read_files`, que facilita el proceso de creación de tablas a partir de ficheros.
+---
 
