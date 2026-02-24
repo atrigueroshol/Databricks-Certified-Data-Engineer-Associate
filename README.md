@@ -394,3 +394,16 @@ Output:
 |--------:|------------------|
 | 1       | ["A", "B"]       |
 | 2       | ["C"]            |
+
+### UDF
+Para crear una funcion en Databricks utilizaremos la siguiente estructura
+```sql
+CREATE FUNCTION name(field TYPE)
+RETURNS type
+RETURN logic
+```
+ejemplo:
+```sql
+CREATE OR REPLACE FUNCTION to_user_label(name STRING)
+RETURNS STRING
+RETURN CONCAT('USER_', UPPER(name));
