@@ -293,7 +293,9 @@ CREATE TEMP VIEW view_name AS query
 CREATE GLOBAL TEMP VIEW view_name AS query
 ```
 
----
+## Procesamiento y transformaciones
+
+### Consultas a ficheros
 Para consultar datos de un archivo en Databricks debemos utilizar lo siguiente:
 ```sql
 SELECT  *  FROM file_format.`path`
@@ -323,5 +325,72 @@ LOCATION path
 De esta forma siempre estaremos creando una tabla externa que referencia ficheros almacenados externamente y, por lo tanto, no es una tabla de tipo Delta y pierde las ventajas asociadas a este tipo de tablas. Para solventar esto, una solución consiste en crear una vista temporal y, posteriormente, usar CTAS para crear una tabla a partir de dicha vista.
 
 En la última versión de Databricks se ha introducido una función llamada `read_files`, que facilita el proceso de creación de tablas a partir de ficheros.
----
 
+### Operaciones de escritura y sobreescritura
+Existen varias formas de sobreescribir datos en una tabla. Hay ventajas en sobreescribir una tabla en vez de borrarla y crear una nueva tabla. Por ejemplo la version antigua de la tabla sigue existiendo y podemos volver a ella. Además sobreescribir una tabla es más rápido ya que no necesita borrar ningún fichero. Además es una operación que se hace en paralelo y se puede seguir consultando la tabla mientras el proceso termina de sobreescribir.
+
+El primer metodo para reescribir una tabla es usando **CREATE OR REPLACE** que remplaza todo el contenido de la tabla.
+```sql
+CREATE OR REPLACE TABLE name AS
+SELECT * FROM format.`path`
+```
+El segundo metodo para sobreescribir en una tabla es usando **INSERT OVERWRITE**. Los datos de la tabla serán reemplazados por los datos de la query. Esta secuencia solo puede sobreescribir en una tabla pero no puede crearla y por lo tanto solo puede escribir datos que coincidan con el esquema de la tabla o si no recibiremos una excepción al ejecutar la operación.
+```sql
+INSERT OVERWRITE name
+SELECT * FROM format.`path`
+```
+Si queremos insertar datos en una tabla podemos usar INSERT INTO. Si ejecutamos la orden varias veces tenremos registros duplicados. 
+```sql
+INSERT INTO name
+SELECT * FROM format.`path`
+```
+Si queremos evitar tener registros duplicados podemos usar MERGE.
+```sql
+CREATE OR REPLACE TEMP VIEW name_view AS
+SELECT * FROM format.`path`
+
+MERGE INTO name_table A
+USING name_view B
+ON a.key = b.key
+WHEN MATCHED
+	UPDATE
+WHEN NOT MATCHED THEN INSERT *
+```
+
+### Transformaciones Avanzadas
+
+Databricks permite tener columnas en formato JSON de tipo STRING. Por ejemplo la columna cliente podría ser:
+```json
+{"name": "Alberto", last_name: "Trigueros", "gender":male"}
+```
+```sql
+SELECT client:name
+FROM purchases
+```
+#### JSON TO FLAT COLUMNS
+La función **from_json** permite convertir JSON en STRUCT. La función from_json necesita un atributo **shema_of_json**. Una vez que hemos hecho el from_json podemos acceder a la columnas de la siguiente forma:
+```sql
+SELECT from_json(client, schema_of_json('{"name": "Alberto", last_name: "Trigueros", "gender":male"}')) AS client_struct
+SELECT * FROM client_struct.name
+```
+Una vez creado el struct podemos utilizar una vista para flatear las columnas.
+
+#### EXPLODE
+En databricks existe una función llamada **explode()** que permite flatear los arrays creaundo una fila por cada valor del array.
+```sql
+SELECT explode(column) AS column FROM table
+```
+#### COLLECT_SET
+La operación **collect_set** es una función de agregación que permite obtener valores unicos por la agrupación. Ejemplo.
+```sql
+SELECT  
+user_id,  
+collect_set(product) AS productos_unicos  
+FROM ventas  
+GROUP  BY user_id;
+```
+Output:
+| user_id | productos_unicos |
+|--------:|------------------|
+| 1       | ["A", "B"]       |
+| 2       | ["C"]            |
