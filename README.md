@@ -407,19 +407,19 @@ ejemplo:
 CREATE OR REPLACE FUNCTION to_user_label(name STRING)
 RETURNS STRING
 RETURN CONCAT('USER_', UPPER(name));
-
-### Desarrollo e Ingesta
+```
+## Desarrollo e Ingesta
 
 En Databricks para el procesamiento en **streaming** de datos existe **Spark Structured Streaming** que es un motor de procesamiento en streaming. Este motor permite consultar un datasource infinito y volcar los resultados en tablas o en ficheros.
 
-#### ReadStream
+### ReadStream
 Operación utilizada para definir una fuente de datos infinita. No es una acción por lo que no se ejecuta directamente.
 ```python
 df = spark.readStream.table("name_table)
 ```
 Una vez creado el df se pueden definir transformaciones y operaciones sobre el dataframe. Se debe tener en cuenta que en estos casos hay operaciones que no soportan los df en streaming como sorting y deduplicación.
 
-#### WriteStream
+### WriteStream
 Operación que define el destino del procesamiento y el modo de ejecución del stream.
 ```python
 df.writeStream
@@ -450,4 +450,7 @@ outputMode:
  - complete: se reescribe la tabla entera
  
 option(checkpointLocation, path): Sirve para saber que datos ya se han procesado y recuperarse tras fallos.
+
+
  
+
