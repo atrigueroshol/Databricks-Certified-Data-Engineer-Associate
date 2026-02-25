@@ -25,6 +25,35 @@ La arquitectura de la plataforma de **Databricks** es la siguiente:
   <img src="https://github.com/atrigueroshol/Databricks-Certified-Data-Engineer-Associate/blob/main/arch.drawio.png?raw=true" alt="Texto alternativo">
 </p>
 
+## Notebooks
+Los nootebooks por defecto tienen python como lenguaje pero se puede modificar. Además se pueden combinar varios lenguajes en un mismo nootebook añadiendo % al principio de una celda.
+```
+%python   → Ejecuta código Python (por defecto)
+%sql      → Ejecuta consultas SQL (Spark SQL)
+%scala    → Ejecuta código Scala
+%r        → Ejecuta código R
+%md       → Celdas de documentación en Markdown
+%run      → permite ejecutar otro nootebook
+%fs       → permite interactuar con el sistema de archivos
+```
+Además Datrabricks proporciona **dbutils** que permite interactuar con el entorno del workspace y del cluster, facilitando tareas de administración, exploración de datos y gestión de pipelines desde los notebooks.
+### Explorador de Variables
+El Variable Explorer permite ver de forma rápida todas las variables definidas en una sesión del notebook, mostrando su nombre, tipo de dato y valor actual.  Además, para DataFrames de Spark y Pandas, muestra dimensiones, nombres de columnas y permite consultar el esquema completo al pasar el cursor.
+### Python Debugger
+Databricks Notebooks ahora permiten depuración interactiva para inspeccionar la ejecución de código Python en tiempo real. Puedes definir breakpoints directamente en el notebook para pausar la ejecución y revisar valores de variables, lo que facilita detectar errores de lógica.
+
+Para iniciar el depurador en Databricks:
+1.  Añade uno o más breakpoints haciendo clic en el margen de una celda.
+2.  Haz clic en “Debug cell”.
+3.  Se inicia una sesión de depuración donde puedes avanzar paso a paso usando la barra de herramientas.
+
+#### Versiones
+Databricks permite ver las anteriores versiones de un nootebook y restaurarlas. Unicamente tenemos versiones pero no tenemos ramas de versionado.
+
+## Carpetas Git
+
+Se puede conectar una plataforma de versionado como github con Databricks. Una vez conectado nuestro repositorio podemos crear nuevas ramas, commitear, pushear y hacer pull. Para mergear ramas se debe hacer desde la plataforma de versionado como github.
+
 ## DeltaLake
 DeltaLake es un framework de código abierto que añade transacciones ACID, control de versiones y fiabilidad a los data lakes.
 Es un componente que esta desplegado en el cluster como parte del runtime. Cuando creamos una tabla delta se almacena en el almacenamiento en varios ficheros de datos de tipo parquet y delta logs en formato JSON.
