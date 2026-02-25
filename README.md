@@ -451,6 +451,44 @@ outputMode:
  
 option(checkpointLocation, path): Sirve para saber que datos ya se han procesado y recuperarse tras fallos.
 
+### Ingesta incremental desde ficheros
+
+Necesitamos recibir data de nuevos ficheros desde la última ingesta de datos. No queremos reprocesar los ficheros ya procesados, solo queremos procesar los nuevos ficheros. 
+Hay dos métodos COPY INTO y Auto Loader.
+
+#### COPY INTO
+Es un comando en SQL que permite cargar datos de un directorio a una tabla. Cada vez que se ejecuta el comando solo carga los datos de los nuevos ficheros.
+```sql
+COPY INTO my_table
+FROM 'path'
+FILEFORMAT = format
+FORMAT_OPTIONS(options)
+COPY_OPTIONS(options)
+```
+#### Auto Loader
+Usa Spark Structured Streaming. Sirve para procesar una gran cantidad de datos que se encuentre en un directorio. Tiene todas las ventajas de Spark Structured Streaming. Ejemplo:
+```python
+spark.readStream
+	.format("cloudFiles")
+	. option("cloudFiles.format", source_format)
+	. writeStream
+		.option("checkpointLocation", directorio)
+		.table(table_name)
+```
+#### COPY INTO VS Auto Loader
+
+| COPY INTO| Auto Loader|
+|--------:|------------------|
+| Miles de filas       | Millones de filas       |
+|    Escalado poco eficiente    | Escalado Eficiente     
+
+
+### Arquitectura Medallion
+Esta arquitectura organiza los datos en capas. Esta arquitectura esta centrada en mejorar la estructura y la calidad de los datos según avanzan los datos por las capas. 
+<p align="center">
+  <img src="https://github.com/atrigueroshol/Databricks-Certified-Data-Engineer-Associate/blob/main/medallion.drawio.png?raw=true" alt="Texto alternativo">
+</p>
+
 
  
 
