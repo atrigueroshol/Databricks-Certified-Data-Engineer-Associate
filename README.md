@@ -484,7 +484,7 @@ spark.readStream
 
 
 ### Arquitectura Medallion
-Esta arquitectura organiza los datos en capas. Esta arquitectura esta centrada en mejorar la estructura y la calidad de los datos según avanzan los datos por las capas. 
+Esta arquitectura organiza los datos en capas. Esta arquitectura esta centrada en mejorar la estructura y la calidad de los datos según avanzan los datos por las capas.  
 <p align="center">
   <img src="https://github.com/atrigueroshol/Databricks-Certified-Data-Engineer-Associate/blob/main/medallion.drawio.png?raw=true" alt="Texto alternativo">
 </p>
