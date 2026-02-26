@@ -328,8 +328,17 @@ CREATE GLOBAL TEMP VIEW view_name AS query
 Para consultar datos de un archivo en Databricks debemos utilizar lo siguiente:
 ```sql
 SELECT  *  FROM file_format.`path`
+-- Ejemplos
+SELECT * FROM csv.`/mnt/datos/ventas/ventas_2025.csv`
+SELECT * FROM json.`/mnt/datos/clientes/clientes.json`
+SELECT * FROM parquet.`/mnt/datos/ventas/ventas_2025.parquet`
+SELECT * FROM delta.`/mnt/datos/ventas_delta`
 ```
-Esta consulta funciona solo para los tipos de ficheros _self-describing_ como (JSON, Parquet, etc.), pero no funciona para formatos _non self-describing_ como (CSV, TSV, etc.). En el `path` podemos indicar un fichero (`file.json`), varios ficheros (`file_*.json`) o un directorio completo (`/path/dir`).
+Esta consulta funciona tanto para formatos self-describing (JSON, Parquet, ORC, Avro, Delta) como para formatos non self-describing (CSV, TSV, TXT).
+
+En los formatos non self-describing es necesario proporcionar opciones adicionales (por ejemplo header, sep, inferSchema o un esquema explícito).
+
+En el path se puede indicar un fichero concreto, un patrón de ficheros o un directorio completo.
 
 Si queremos obtener los datos como strings de ficheros de tipo texto (JSON, CSV, TSV y TXT) podemos utilizar:
 ```sql
