@@ -537,6 +537,33 @@ Esta arquitectura organiza los datos en capas. Esta arquitectura esta centrada e
   <img src="https://github.com/atrigueroshol/Databricks-Certified-Data-Engineer-Associate/blob/main/medallion.drawio.png?raw=true" alt="Texto alternativo">
 </p>
 
+##  Data Pipelines Lakeflow
+
+### Creación de Pipelines
+
+Delta Live Tables (DLT) es un framework para construir pipelines. DLT simplifica la forma de crear ETLs manteniendo dependencias y calidad del dato. DLT se implementa utilizando nootebooks de databricks.
+
+En el nootebook se debe declarar las DLTs. Cuando definimos DLTs siempre utilizaremos la palabra LIVE.
+```sql
+CREATE OR REFRESH LIVE TABLE name_table
+COMMENT "lorem impsum..."
+AS SELECT * FROM ....
+```
+Para crear un pipeline debemos seguir los siguientes pasos:
+
+ 1. Seleccionar la pestaña de workflows
+ 2. Seleccionar la pestaña Delta Live Tables
+ 3. Hacer click en Crear Pipeline
+ 4. Dar nombre al pipeline y seleccionar el nootebook que contiene la información de las tablas.
+ 5. Añadimos los parámetros necesarios
+ 6. Seleccionar el modo de ejecución:
+	 - Triggered: Se ejecuta una vez y espera a otra ejecución manual o automática.
+	 - Continuous: Ingesta los datos según van llegando
+ 7. Seleccionamos el numero de workers
+ 8. Creamos el pipeline
+
+Todas las tablas del pipeline deben tener el prefijo LIVE o dará error.
+
 
  
 
