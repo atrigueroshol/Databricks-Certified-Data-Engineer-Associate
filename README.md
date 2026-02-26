@@ -335,9 +335,7 @@ SELECT * FROM parquet.`/mnt/datos/ventas/ventas_2025.parquet`
 SELECT * FROM delta.`/mnt/datos/ventas_delta`
 ```
 Esta consulta funciona tanto para formatos self-describing (JSON, Parquet, ORC, Avro, Delta) como para formatos non self-describing (CSV, TSV, TXT).
-
 En los formatos non self-describing es necesario proporcionar opciones adicionales (por ejemplo header, sep, inferSchema o un esquema explícito).
-
 En el path se puede indicar un fichero concreto, un patrón de ficheros o un directorio completo.
 
 Si queremos obtener los datos como strings de ficheros de tipo texto (JSON, CSV, TSV y TXT) podemos utilizar:
@@ -348,11 +346,11 @@ Si queremos obtener los datos como bytes de ficheros de tipo imagen podemos util
 ```sql
 SELECT  *  FROM binaryFile.`/path/to/file`
 ```
-Normalmente, cuando extraemos datos de ficheros externos queremos cargarlos en nuestro lakehouse y, para ello, podemos usar CTAS:
+Normalmente, cuando extraemos datos de ficheros externos queremos cargarlos en el lakehouse y para ello podemos usar CTAS (CREATE TABLE AS SELECT). Con CTAS no se define el esquema explícitamente en la sentencia CREATE TABLE, ya que el esquema se deriva del SELECT. Sin embargo, es posible controlar el esquema mediante casts, alias o transformaciones en la consulta. Las opciones del fichero están soportadas y deben especificarse en la cláusula FROM file_format.\path``. La principal limitación de CTAS es que no permite definir columnas explícitamente en el CREATE TABLE.
 ```sql
 CREATE  TABLE table_name AS  SELECT  *  FROM file_format.`path`
 ```
-Cuando usamos CTAS para la creación de tablas no se puede definir el esquema de la tabla ni se soportan opciones del fichero, lo que puede suponer un problema. Por ello existe esta otra opción:
+Cuando usamos CTAS para la creación de tablas no se puede definir el esquema de la tabla, lo que puede suponer un problema. Por ello existe esta otra opción:
 ```sql
 CREATE  TABLE table_name  
  (col_name1 col_type1, ...)  
@@ -363,6 +361,18 @@ LOCATION path
 De esta forma siempre estaremos creando una tabla externa que referencia ficheros almacenados externamente y, por lo tanto, no es una tabla de tipo Delta y pierde las ventajas asociadas a este tipo de tablas. Para solventar esto, una solución consiste en crear una vista temporal y, posteriormente, usar CTAS para crear una tabla a partir de dicha vista.
 
 En la última versión de Databricks se ha introducido una función llamada `read_files`, que facilita el proceso de creación de tablas a partir de ficheros.
+
+```sql
+CREATE TABLE ventas
+AS
+SELECT *
+FROM read_files(
+  '/mnt/datos/ventas/ventas_2025.csv',
+  format => 'csv',
+  header => 'true',
+  inferSchema => 'true'
+)
+```
 
 ### Operaciones de escritura y sobreescritura
 Existen varias formas de sobreescribir datos en una tabla. Hay ventajas en sobreescribir una tabla en vez de borrarla y crear una nueva tabla. Por ejemplo la version antigua de la tabla sigue existiendo y podemos volver a ella. Además sobreescribir una tabla es más rápido ya que no necesita borrar ningún fichero. Además es una operación que se hace en paralelo y se puede seguir consultando la tabla mientras el proceso termina de sobreescribir.
