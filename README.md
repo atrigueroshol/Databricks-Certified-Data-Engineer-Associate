@@ -328,6 +328,22 @@ CREATE TABLE table_1 AS
 ```
 La ventaja que tiene es que no se define el esquema manualmente si no que directamente lo infiere del SELECT. Además la tabla ya viene con los datos que obtiene de la consulta.
 
+### Comentarios en tablas
+En Databricks podemos añadir comentarios a nuestras tablas y columnas mediante el comando **COMMENT** "texto a introducir". Ejemplos:
+```SQL
+CREATE TABLE ventas (
+  id INT,
+  monto DECIMAL(10,2)
+)
+COMMENT "Tabla que almacena las ventas diarias por transacción";
+```
+```SQL
+CREATE TABLE tabla_ejemplo
+COMMENT "Tabla que almacena las ventas diarias por transacción"
+AS
+SELECT id, monto from ventas;
+```
+
 ### Restricciones (Constraints)
 Databricks soporta dos tipos de restricciones sobre las tablas:
 
