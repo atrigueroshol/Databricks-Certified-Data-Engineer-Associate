@@ -602,9 +602,13 @@ spark.readStream
 #### COPY INTO VS Auto Loader
 
 | COPY INTO| Auto Loader|
-|--------:|------------------|
-| Miles de filas       | Millones de filas       |
-|    Escalado poco eficiente    | Escalado Eficiente     
+Algunas cosas a considerar al elegir entre Auto Loader y el comando COPY INTO:
+
+Si vas a ingerir archivos en el orden de miles, puedes usar COPY INTO.
+
+Si esperas archivos en el orden de millones o más con el tiempo, usa Auto Loader.
+
+Si el esquema de tus datos va a evolucionar con frecuencia, Auto Loader ofrece mejores herramientas para la inferencia y evolución del esquema
 
 
 ### Arquitectura Medallion
