@@ -31,6 +31,41 @@ En Databricks existen dos planos principales:
     
 -   **Data Plane**: desplegado en la suscripción cloud del cliente, contiene los clusters y es donde ocurre el cómputo y el acceso al almacenamiento (S3/ADLS/GCS).
 
+## Clusters
+
+Recordemos que un cluster es un conjunto de máquinas que trabajan juntas. A las maquinas de un cluster se las conoce como nodos. 
+```
+Cluster
+├─ Master Node (ResourceManager)
+└─ Worker Nodes (NodeManager)
+    └─ Contenedores
+        ├─ Driver (coordina)
+        └─ Executors (ejecutan tareas)
+```
+Para profundizar sobre esta tema revisar [documentación de pyspark](https://github.com/atrigueroshol/PYSPARK).
+
+Para crear un cluster debemos ir a la pestaña de "compute" en el menú de  la izquierda y seleccionar la opción de "create compute" y se nos abrirá un formulario para crear un cluster con las siguientes opciones:
+
+ - Policy:
+ - Nº de nodos:
+	 - Multi-node: para tener varios nodos workers.
+	 - Single-node: no tiene nodos workers y realiza todas las operaciones en el nodo driver.
+ - Access mode: El número de personas que van a poder utilizar el cluster.
+	 - Single user
+	 - Shared
+ - Version de databricks: es la imagen virtual que viene con las versiones de Spark y Scala instaladas.
+ - Worker type:
+	 - Se debe elegir Cores y Memoria de los nodos workers.
+	 - El número mínimo y máximo de workers en caso de habilitar el autoescalado. Si se deshabilita la opción de autoescalado simplemente se deberá seleccionar el número de workers fijo.
+	 - Spot instances: habilitar esta opción utiliza máquinas virtuales más baratas pero interrumpibles por el proveedor cloud. No se recomienda para procesos críticos, streaming y cargas que no toleran reintentos.
+ - Se debe elegir la configuración del nodo driver.
+ - Apagado del cluster después de un tiempo de inactividad.
+
+Una vez finalizado la configuración se nos indica el número de DBU/h del cluster si estuviera activo. En la página de databricks se puede consultar el precio de DBU/h.
+
+Una vez creado el cluster podemos  ver los logs generados por los clusters, editar los permisos, editar la configuración del cluster (requiere un reinicio para la nueva configuración).
+
+
 ## Notebooks
 Los nootebooks por defecto tienen python como lenguaje pero se puede modificar. Además se pueden combinar varios lenguajes en un mismo nootebook añadiendo % al principio de una celda.
 ```
