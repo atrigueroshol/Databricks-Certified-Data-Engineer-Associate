@@ -624,6 +624,10 @@ Para crear un pipeline debemos seguir los siguientes pasos:
 
 Todas las tablas del pipeline deben tener el prefijo LIVE o dará error.
 
+## Recomendaciones
 
+[Curso de udemy para aprendizaje](https://www.udemy.com/course/databricks-certified-data-engineer-associate/learn/lecture/34664610#overview)
+[Exámenes de práctica 1](https://www.udemy.com/course-dashboard-redirect/?course_id=5005556)
+[Exámenes de práctica 2](https://www.udemy.com/course-dashboard-redirect/?course_id=5802872)
  
 
