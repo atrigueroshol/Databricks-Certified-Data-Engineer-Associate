@@ -644,6 +644,39 @@ Para crear un pipeline debemos seguir los siguientes pasos:
 
 Todas las tablas del pipeline deben tener el prefijo LIVE o dará error.
 
+### Restricciones DLT
+
+A la hora de poner resticciones en tablas DLT se pueden añadir acciones:
+- Warn: Los registros que no cumplen la condición son escritos en la tabla y se registra una violación. Es el valor por defecto.
+```sql
+CREATE OR REFRESH LIVE TABLE ventas_bronze
+CONSTRAINT monto_positivo
+EXPECT (monto > 0)
+AS
+SELECT *
+FROM raw_ventas;
+```
+- Drop: Los valores que no cumplen la condición no se escriben en la tabla y el número de registros droppeados se registran en los logs.
+```sql
+CREATE OR REFRESH LIVE TABLE clientes_silver
+CONSTRAINT email_no_nulo
+EXPECT (email IS NOT NULL)
+ON VIOLATION DROP ROW
+AS
+SELECT *
+FROM LIVE.clientes_bronze;
+```
+- Fail:No actualiza la tabla y requiere intervención manual.
+```sql
+CREATE OR REFRESH LIVE TABLE ventas_gold
+CONSTRAINT fecha_valida
+EXPECT (fecha <= current_date())
+ON VIOLATION FAIL UPDATE
+AS
+SELECT *
+FROM LIVE.ventas_silver;
+```
+
 ## Recomendaciones
 
 [Curso de udemy para aprendizaje](https://www.udemy.com/course/databricks-certified-data-engineer-associate/learn/lecture/34664610#overview)
