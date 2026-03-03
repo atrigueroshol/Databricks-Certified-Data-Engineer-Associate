@@ -63,7 +63,7 @@ Para crear un cluster debemos ir a la pestaña de "compute" en el menú de  la i
 
 Una vez finalizado la configuración se nos indica el número de DBU/h del cluster si estuviera activo. En la página de databricks se puede consultar el precio de DBU/h.
 
-Una vez creado el cluster podemos  ver los logs generados por los clusters, editar los permisos, editar la configuración del cluster (requiere un reinicio para la nueva configuración).
+Una vez creado el cluster podemos  ver los logs generados por los clusters, editar los permisos, editar la configuración del cluster (requiere un reinicio para la nueva configuración). También podemos apagar el cluster con la opción "terminating" lo que liberará los recursos de computo y almacenará los datos en el cloud storage garantizando la persistencia de los datos. 
 
 
 ## Notebooks
