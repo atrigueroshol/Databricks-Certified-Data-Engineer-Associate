@@ -93,7 +93,26 @@ Databricks permite ver las anteriores versiones de un nootebook y restaurarlas. 
 
 ## Carpetas Git
 
-Se puede conectar una plataforma de versionado como github con Databricks. Una vez conectado nuestro repositorio podemos crear nuevas ramas, commitear, pushear y hacer pull. Para mergear ramas se debe hacer desde la plataforma de versionado como github.
+Las Git Folders de Databricks son un cliente visual de Git integrado en el workspace que permite conectar repositorios remotos directamente dentro del entorno de trabajo.
+
+Permiten desarrollar código en notebooks y archivos siguiendo buenas prácticas de desarrollo de software, utilizando Git para:
+
+-   Control de versiones
+-   Colaboración 
+-   Integración y despliegue continuo (CI/CD)
+
+Proporcionan control de código fuente para proyectos de datos e IA mediante integración con proveedores Git (como GitHub, GitLab, Azure DevOps, etc.).
+
+En databricks se puede: 
+-   Clonar un repositorio remoto
+-   Hacer _push_ y _pull_  
+-   Crear y gestionar ramas
+-   Hacer _merge_, _rebase_ y resolver conflictos  
+-   Crear y editar notebooks (incluyendo formato IPYNB) y otros archivos
+-   Comparar visualmente cambios antes de hacer commit
+-   Resolver conflictos de merge desde la interfaz
+
+Destacar que **no se puede crear una pull request ni eliminar una rama**. Estas acciones deben realizarse desde el proveedor de git.
 
 ## DeltaLake
 DeltaLake es un framework de código abierto que añade transacciones ACID, control de versiones y fiabilidad a los data lakes.
