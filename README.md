@@ -25,6 +25,12 @@ La arquitectura de la plataforma de **Databricks** es la siguiente:
   <img src="https://github.com/atrigueroshol/Databricks-Certified-Data-Engineer-Associate/blob/main/arch.drawio.png?raw=true" alt="Texto alternativo">
 </p>
 
+En Databricks existen dos planos principales:
+
+-   **Control Plane**: gestionado por Databricks, se encarga de la interfaz web, APIs, orquestación de jobs, gestión de metadatos y control de acceso.
+    
+-   **Data Plane**: desplegado en la suscripción cloud del cliente, contiene los clusters y es donde ocurre el cómputo y el acceso al almacenamiento (S3/ADLS/GCS).
+
 ## Notebooks
 Los nootebooks por defecto tienen python como lenguaje pero se puede modificar. Además se pueden combinar varios lenguajes en un mismo nootebook añadiendo % al principio de una celda.
 ```
