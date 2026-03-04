@@ -502,35 +502,71 @@ WHEN MATCHED
 WHEN NOT MATCHED THEN INSERT *
 ```
 
-### Transformaciones Avanzadas
+### Transformaciones avanzadas
 
-Databricks permite tener columnas en formato JSON de tipo STRING. Por ejemplo la columna cliente podría ser:
-```json
-{"name": "Alberto", last_name: "Trigueros", "gender":male"}
+#### JSON Y STRUCT
+Databricks permite tener columnas de tipo JSON y de tipo STRUCT. 
+- JSON: Es un String que contiene JSON. 
+```python
+JSON
+cliente{"name": "Alberto", "last_name": "Trigueros", "gender":male"}
+COMO ACCEDER AL CAMPO
+cliente:name
 ```
-```sql
-SELECT client:name
-FROM purchases
+- STRUCT: Es un tipo nativo de SPARK
+```python
+StructType([
+    StructField("nombre", StringType(), True),
+    StructField("last_name", StringType(), True)
+])
+COMO ACCEDER AL CAMPO
+cliente.name
 ```
-#### JSON TO FLAT COLUMNS
-La función **from_json** permite convertir JSON en STRUCT. La función from_json necesita un atributo **shema_of_json**. Una vez que hemos hecho el from_json podemos acceder a la columnas de la siguiente forma:
-```sql
-SELECT from_json(client, schema_of_json('{"name": "Alberto", last_name: "Trigueros", "gender":male"}')) AS client_struct
-SELECT * FROM client_struct.name
-```
-Una vez creado el struct podemos utilizar una vista para flatear las columnas.
+Las ventajas de utilizar STRUCT vs JSON son las siguientes:
+- Rendimiento: Un STRUCT ya está tipado y Spark puede optimizar consultas de manera nativa
 
-#### EXPLODE
-En databricks existe una función llamada **explode()** que permite flatear los arrays creaundo una fila por cada valor del array.
+- Compatibilidad con Delta Lake y Medallion Architecture: En tablas Silver o Gold, se suelen usar STRUCTs para mantener los datos limpios y tipados, evitando strings que podrían contener datos inconsistentes.
+
+- Integración con ML y BI: Los campos de un STRUCT se pueden mapear directamente a features o columnas de dashboards, mientras que un JSON requiere parsing adicional.
+
+Uno de los casos de uso de Databricks es ingestar datos desde un fichero de tipo JSON. En una arquitectura Medallion estos datos los almacenariamos en la capa bronze en formato JSON para posteiormente transformarlos a STRUCT en silver.
 ```sql
-SELECT explode(column) AS column FROM table
+-- BRONZE LAYER
+CREATE OR REPLACE TABLE clientes AS
+SELECT * FROM json `path`
+-- SILVER LAYER JSON -> STRUCT
+SELECT
+  from_json(cliente, schema_of_json('{"name":"Alberto","last_name":"Trigueros","gender":"male"}')) AS cliente_struct
+FROM clientes_bronze
 ```
-#### COLLECT_SET
-La operación **collect_set** es una función de agregación que permite obtener valores unicos por la agrupación. Ejemplo.
+#### FLAT STRUCT
+Cuando tenemos una columna de tipo STRUCT con varios campos, muchas veces queremos aplanarla para tener los valores en columnas separadas y trabajar más fácilmente con ellos.  Un ejemplo de como hacerlo:
+```sql
+CREATE OR REPLACE TABLE clientes_flat AS
+SELECT id, cliente.name, cliente.last_name FROM cliente
+```
+#### Arrays
+Databricks permite tener columnas de tipo array. Para flatear los arrays en diferentes filas se utiliza la función **explode**.
+```sql
+-- tabla (
+--   usuario STRING,
+--   productos ARRAY<STRING>
+-- )
+-- Explode
+SELECT usuario, explode(productos) as producto FROM clientes
+```
+Otra de las funciones utilizadas con las columnas de tipo array es **collect_set**. La operación **collect_set** es una función de agregación que permite obtener valores unicos por la agrupación. Es necesario hacer un group by para poder utilizarla.
+INPUT:
+| user_id | producto |
+|--------:|------------------|
+| 1       | "A"      |
+| 2       | "C"            |
+| 1       | "A"            |
+| 1       | "B"            |
 ```sql
 SELECT  
 user_id,  
-collect_set(product) AS productos_unicos  
+collect_set(producto) AS productos_unicos  
 FROM ventas  
 GROUP  BY user_id;
 ```
