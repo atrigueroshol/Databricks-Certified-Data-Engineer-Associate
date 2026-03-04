@@ -644,6 +644,10 @@ Para crear un pipeline debemos seguir los siguientes pasos:
 
 Todas las tablas del pipeline deben tener el prefijo LIVE o dará error.
 
+Hay dos modos de correr los pipelines:
+- Development: Permite un desarrollo interactivo y reutiliza el  mismo cluster en todas las ejecuciones. Tiene la opción de reintentos lo que permite encontrar y solucionar los errores fácilmente.
+- Production: En este modo se crea un cluster nuevo por cada ejecución
+
 ### Restricciones DLT
 
 A la hora de poner resticciones en tablas DLT se pueden añadir acciones:
