@@ -617,9 +617,9 @@ Esta arquitectura organiza los datos en capas. Esta arquitectura esta centrada e
   <img src="https://github.com/atrigueroshol/Databricks-Certified-Data-Engineer-Associate/blob/main/medallion.drawio.png?raw=true" alt="Texto alternativo">
 </p>
 
-##  Data Pipelines Lakeflow
+##  Data Pipelines
 
-### Creación de Pipelines
+### Delta Live Tables
 
 Delta Live Tables (DLT) es un framework para construir pipelines. DLT simplifica la forma de crear ETLs manteniendo dependencias y calidad del dato. DLT se implementa utilizando nootebooks de databricks.
 
@@ -647,8 +647,6 @@ Todas las tablas del pipeline deben tener el prefijo LIVE o dará error.
 Hay dos modos de correr los pipelines:
 - Development: Permite un desarrollo interactivo y reutiliza el  mismo cluster en todas las ejecuciones. Tiene la opción de reintentos lo que permite encontrar y solucionar los errores fácilmente.
 - Production: En este modo se crea un cluster nuevo por cada ejecución
-
-### Restricciones DLT
 
 A la hora de poner resticciones en tablas DLT se pueden añadir acciones:
 - Warn: Los registros que no cumplen la condición son escritos en la tabla y se registra una violación. Es el valor por defecto.
@@ -680,6 +678,24 @@ AS
 SELECT *
 FROM LIVE.ventas_silver;
 ```
+
+### Lakeflow Jobs
+
+Lakeflow es una herramienta de orquestación de pipelines de datos en la plataforma Databricks, diseñada para automatizar, programar y monitorear flujos de trabajo de datos dentro de un Lakehouse. 
+
+Para acceder a la herramienta, debemos ir a la pestaña workflows en el menú de la izquierda y hacer clic en "create job". 
+
+Un Lakehouse Job es un trabajo automatizado que ejecuta pipelines de datos dentro de la plataforma Databricks. Databricks permite agendar una o varias tasks como parte de un job. 
+
+Cada task puede ser de un tipo diferente: notebooks, delta live pipelines, etc. Estas tasks pueden tener dependencias entre ellas. 
+
+La herramienta permite programar los jobs en la opción de "Schedule". También se pueden ejecutar los jobs de forma manual. 
+
+Se pueden configurar notificaciones para recibir alertas cuando un job ha empezado, terminado o ha dado error. 
+
+También se pueden configurar permisos para los jobs y establecer quién puede ver, editar o ejecutar los jobs. 
+
+Hay una pestaña en la que podemos consultar todas las ejecuciones de nuestros jobs, incluyendo las ejecuciones que están ocurriendo en el momento.
 
 ## Recomendaciones
 
