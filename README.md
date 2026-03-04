@@ -1,5 +1,23 @@
 # Databricks Certified Data Engineer Associate
 
+## Información de la Certificación
+
+El examen de certificación de Asociado en ingeniería de datos certificado por Databricks evalúa tu capacidad para utilizar Databricks Data Intelligence Platform con el fin de completar tareas introductorias de ingeniería de datos.
+
+El examen abarca lo siguiente:
+
+1.  Databricks Intelligence Platform - 10 %
+2.  Desarrollo e ingesta - 30 %
+3.  Procesamiento y transformaciones de datos - 31 %
+4.  Puesta en producción de canalizaciones de datos: 18 %
+5.  Gobernanza y calidad de los datos: 11 %
+
+El examen consta de 45 preguntas  con un límite de tiempo de 90 minutos.
+
+Para información más detella del examen revisar [información de la certificación](https://github.com/atrigueroshol/Databricks-Certified-Data-Engineer-Associate/blob/main/databricks-certified-data-engineer-associate-exam-guide-july-30-2025-0.pdf)
+
+## Qué es DataBricks
+
 Databricks es una plataforma multicloud para data lakehouse basada en Apache Spark.
 
 Un **data lakehouse** es una plataforma que unifica las ventajas de un datalake y un datawarehouse.
