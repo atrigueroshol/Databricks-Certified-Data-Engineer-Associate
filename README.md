@@ -678,6 +678,25 @@ AS
 SELECT *
 FROM LIVE.ventas_silver;
 ```
+CDC (Change Data Capture) es el proceso de identificación de cambios en la fuente de datos origen y llevarlos a la fuente destino.
+Estos cambios pueden ser la inserción de nuevas filas, la actualización de filas ya existentes o el borrado de filas.
+
+Las DLT tienen un comando **APPLY CHANGES INTO** para realizar el proceso de Change Data Capture. Los parámetros del comando son los siguientes:
+- KEYS: Las claves primarias, si la key aparece en la tabla destino la fila será actualizada si no será insertado el registro.
+- SEQUENCE BY: Define el orden de los cambios. Si llegan múltiples cambios del mismo id, usa esta columna para saber cuál es el más reciente.
+- COLUMNS: Indica qué columnas se van a aplicar. También puedes excluir columnas.
+- APPLY AS DELETE: Indica cuando debe borrarse un registro.
+
+Una de las desventajas que tiene el comando APPLY CHANGES INTO es que rompe el procesamiento en streaming.
+
+```sql
+APPLY CHANGES INTO silver_clientes
+FROM STREAM(bronze_clientes)
+KEYS (cliente_id)
+SEQUENCE BY ts
+APPLY AS DELETE WHEN op = 'D'
+COLUMNS * EXCEPT (op, ts)
+```
 
 ### Lakeflow Jobs
 
