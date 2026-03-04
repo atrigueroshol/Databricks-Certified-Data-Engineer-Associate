@@ -16,7 +16,9 @@ El examen consta de 45 preguntas  con un límite de tiempo de 90 minutos.
 
 Para información más detella del examen revisar [información de la certificación](https://github.com/atrigueroshol/Databricks-Certified-Data-Engineer-Associate/blob/main/databricks-certified-data-engineer-associate-exam-guide-july-30-2025-0.pdf)
 
-## Qué es DataBricks
+## 1. Databricks Intelligence Platform
+
+### Qué es DataBricks
 
 Databricks es una plataforma multicloud para data lakehouse basada en Apache Spark.
 
@@ -26,7 +28,7 @@ Un **data lakehouse** es una plataforma que unifica las ventajas de un datalake 
   <img src="https://github.com/atrigueroshol/Databricks-Certified-Data-Engineer-Associate/blob/main/lakehouse.drawio.png?raw=true" alt="Texto alternativo">
 </p>
 
-## Arquitectura
+### Arquitectura
 La arquitectura de la plataforma de **Databricks** es la siguiente:
 
 1.  **Cloud Service**  
@@ -49,7 +51,7 @@ En Databricks existen dos planos principales:
     
 -   **Data Plane**: desplegado en la suscripción cloud del cliente, contiene los clusters y es donde ocurre el cómputo y el acceso al almacenamiento (S3/ADLS/GCS).
 
-## Clusters
+### Clusters
 
 Recordemos que un cluster es un conjunto de máquinas que trabajan juntas. A las maquinas de un cluster se las conoce como nodos. 
 ```
@@ -84,7 +86,7 @@ Una vez finalizado la configuración se nos indica el número de DBU/h del clust
 Una vez creado el cluster podemos  ver los logs generados por los clusters, editar los permisos, editar la configuración del cluster (requiere un reinicio para la nueva configuración). También podemos apagar el cluster con la opción "terminating" lo que liberará los recursos de computo y almacenará los datos en el cloud storage garantizando la persistencia de los datos. 
 
 
-## Notebooks
+### Notebooks
 Los nootebooks por defecto tienen python como lenguaje pero se puede modificar. Además se pueden combinar varios lenguajes en un mismo nootebook añadiendo % al principio de una celda.
 ```
 %python   → Ejecuta código Python (por defecto)
@@ -96,7 +98,8 @@ Los nootebooks por defecto tienen python como lenguaje pero se puede modificar. 
 %fs       → permite interactuar con el sistema de archivos
 ```
 Además Datrabricks proporciona **dbutils** que permite interactuar con el entorno del workspace y del cluster, facilitando tareas de administración, exploración de datos y gestión de pipelines desde los notebooks.
-### Explorador de Variables
+
+#### Explorador de Variables
 El Variable Explorer permite ver de forma rápida todas las variables definidas en una sesión del notebook, mostrando su nombre, tipo de dato y valor actual.  Además, para DataFrames de Spark y Pandas, muestra dimensiones, nombres de columnas y permite consultar el esquema completo al pasar el cursor.
 ### Python Debugger
 Databricks Notebooks ahora permiten depuración interactiva para inspeccionar la ejecución de código Python en tiempo real. Puedes definir breakpoints directamente en el notebook para pausar la ejecución y revisar valores de variables, lo que facilita detectar errores de lógica.
@@ -106,10 +109,10 @@ Para iniciar el depurador en Databricks:
 2.  Haz clic en “Debug cell”.
 3.  Se inicia una sesión de depuración donde puedes avanzar paso a paso usando la barra de herramientas.
 
-#### Versiones
+##### Versiones
 Databricks permite ver las anteriores versiones de un nootebook y restaurarlas. Unicamente tenemos versiones pero no tenemos ramas de versionado.
 
-## Carpetas Git
+### Carpetas Git
 
 Las Git Folders de Databricks son un cliente visual de Git integrado en el workspace que permite conectar repositorios remotos directamente dentro del entorno de trabajo.
 
@@ -132,7 +135,7 @@ En databricks se puede:
 
 Destacar que **no se puede crear una pull request ni eliminar una rama**. Estas acciones deben realizarse desde el proveedor de git.
 
-## DeltaLake
+### DeltaLake
 DeltaLake es un framework de código abierto que añade transacciones ACID, control de versiones y fiabilidad a los data lakes.
 Es un componente que esta desplegado en el cluster como parte del runtime. Cuando creamos una tabla delta se almacena en el almacenamiento en varios ficheros de datos de tipo parquet y delta logs en formato JSON.
 
@@ -143,7 +146,7 @@ Es un componente que esta desplegado en el cluster como parte del runtime. Cuand
     El _Delta Log_ guarda un **registro de todas las transacciones** realizadas sobre la tabla y actúa como la **fuente de verdad** de su estado.  
     Cada fichero **JSON** contiene información sobre la operación realizada (add, remove, metadata, etc.) y los **ficheros de datos afectados**
 
-### Crear Tablas
+#### Crear Tablas
 ```sql
 CREATE TABLE users(
 id INTEGER,
@@ -152,7 +155,7 @@ surname STRING,
 age INTEGER
 )
 ```
-### Insertar Datos
+#### Insertar Datos
 ```sql
 INSERT INTO  users (id, name, surname, age) VALUES
 (1, 'Ana', 'Gómez', 28),
@@ -161,7 +164,7 @@ INSERT INTO  users (id, name, surname, age) VALUES
 (4, 'Javier', 'Pérez', 40),
 (5, 'Sofía', 'López', 30);
 ```
-### Descripcción de la tabla
+#### Descripcción de la tabla
 La operación **DESCRIBE DETAIL** devuelve metadatos completos de la tabla: 
 ```sql
 DESCRIBE DETAIL  users
@@ -175,7 +178,7 @@ numFiles: 5
 sizeInBytes: 20480
 partitionColumns: []
 ```
-### Historial de la tabla
+#### Historial de la tabla
 La operación **DESCRIBE HISTORY** devuelve el historial de cambios de una tabla:
 ```sql
 DESCRIBE HISTORY users
@@ -189,7 +192,7 @@ version | timestamp           | operation | operationMetrics
 3       | 2026-02-16 09:40:00 | MERGE     | {numTargetRowsUpdated=3}
 
 ```
-### Consultar tabla y versiones Antiguas
+#### Consultar tabla y versiones Antiguas
 En databricks se puede consultar una tabla y versiones anteriores.
 ```sql
 -- VERSION ACTUAL
@@ -199,28 +202,28 @@ SELECT * FROM  users VERSION AS OF 1;
 SELECT  *  FROM  users@v1;
 ```
 Para saber el número de la versión que queremos consultar podemos utilizar DESCRIBE HISTORY.
-### Restaurar una version antigua
+#### Restaurar una version antigua
 En databricks podemos restaurar una versión antigua de la tabla con **RESTORE TABLE**.
 ```sql
 RESTORE TABLE users TO VERSION AS OF 1;
 ```
-### Compactar ficheros
+#### Compactar ficheros
 Con **OPTIMIZE** podemos optimizar el rendimiento de las consultas reorganizando los ficheros de datos. Como ya sabemos cada operación sobre una tabla crea un archivo y con OPTIMIZE unifica esos archivos pequeños en archivos más grandes.
 ```sql
 OPTIMIZE users;
 ```
-### Indexación de ficheros
+#### Indexación de ficheros
 Para la indexación de nuestos datos debemos utilizar la operación **ZORDER** que reorganiza los datos de los ficheros para mejorar el rendimiento de las consultas. 
 ```sql
 OPTIMIZE users
 ZORDER BY (surname, age);
 ```
-### Limpieza de ficheros
+#### Limpieza de ficheros
 Con la operación **VACUUM** eliminamos los ficheros de datos que ya no estan en uso. Debemos tener cuidado a la hora de ejecutar este comando ya que una vez hecho no podemos restaurar o consultar versiones anteriores de la tabla.
 ```sql
 VACUUM users
 ```
-### DATA FILE LAYOUT 
+#### DATA FILE LAYOUT 
 Data file layout es la organización física de los ficheros que forman una tabla Delta. Optimizando la capa de data files se puede mejorar significativamente el tiempo de ejecución y el consumo de recursos** de las consultas.
 
 Vamos a estudiar tres técnicas principales para optimizarla.
@@ -281,7 +284,7 @@ CREATE TABLE sales
 CLUSTER BY (country, order_date);
 # CLUSTER BY AUTO
 ```
-### Bases de datos en Databricks
+#### Bases de datos en Databricks
 
 En Databricks, una base de datos equivale conceptualmente a un schema en el Hive Metastore. Por esta razón, existen dos formas equivalentes de crear una base de datos:
 ```sql
@@ -303,7 +306,7 @@ Por defecto, siempre existe un schema llamado:
 
 `default` 
 
-### Tipos de tablas (Managed y External)
+#### Tipos de tablas (Managed y External)
 
 En Databricks existen dos tipos principales de tablas, según cómo se gestione el almacenamiento de los datos.
 
@@ -338,7 +341,7 @@ Ejemplo:
   amount DOUBLE ) USING DELTA
 LOCATION 'abfss://data@storageaccount.dfs.core.windows.net/sales/';`
 
-### CTAS
+#### CTAS
 Otra de las formas de crear una tabla es mediante el uso de CTAS (Create Table As Select Statement).
 ```sql
 CREATE TABLE table_1 AS
@@ -346,7 +349,7 @@ CREATE TABLE table_1 AS
 ```
 La ventaja que tiene es que no se define el esquema manualmente si no que directamente lo infiere del SELECT. Además la tabla ya viene con los datos que obtiene de la consulta.
 
-### Comentarios en tablas
+#### Comentarios en tablas
 En Databricks podemos añadir comentarios a nuestras tablas y columnas mediante el comando **COMMENT** "texto a introducir". Ejemplos:
 ```SQL
 CREATE TABLE ventas (
@@ -362,7 +365,7 @@ AS
 SELECT id, monto from ventas;
 ```
 
-### Restricciones (Constraints)
+#### Restricciones (Constraints)
 Databricks soporta dos tipos de restricciones sobre las tablas:
 
  - NOT NULL constraints
@@ -389,7 +392,7 @@ ALTER TABLE orders ADD CONSTRAINT amount_positive CHECK (amount > 0);
 ```
 Se debe tener en cuenta que si intentamos crear una restricción sobre una tabla con datos y alguno de las filas no cumple la restricción dará error al crear la restricción. Una vez creada la restricción si intentamos insertar una fila que no comple las condiciones la operación devolverá un error.
 
-### Clonar Deltas
+#### Clonar Deltas
 Existen dos formas de clonar las tablas delta en databricks. Esto nos puede servir para tener un backup o una copia de los datos para hacer pruebas.
 
  - Deep Clone: Copia los datos y los metadatos de la tabla. Para sincronizar cambios se debe ejecutar de nuevo el comando. Este comando no es eficiente cuando la cantidad de datos es muy grande.
@@ -400,7 +403,7 @@ CREATE TABLE table_clone DEEP CLONE source_table
  ```sql
 CREATE TABLE table_clone SHALLOW CLONE source_table
 ```
-### Vistas
+#### Vistas
 Una vista es una tabla virtual que no tiene datos físicos., es una query de SQL que apunta a las tablas físicas. En databricks hay tres tipos de vistas. 
 
  - Stored Views: Son objetos persistentes en la base de datos.
@@ -416,7 +419,7 @@ CREATE TEMP VIEW view_name AS query
 CREATE GLOBAL TEMP VIEW view_name AS query
 ```
 
-## Procesamiento y transformaciones
+## 2. Procesamiento y transformaciones de datos
 
 ### Consultas a ficheros
 Para consultar datos de un archivo en Databricks debemos utilizar lo siguiente:
@@ -550,7 +553,7 @@ CREATE OR REPLACE FUNCTION to_user_label(name STRING)
 RETURNS STRING
 RETURN CONCAT('USER_', UPPER(name));
 ```
-## Desarrollo e Ingesta
+## 3. Desarrollo e ingesta
 
 En Databricks para el procesamiento en **streaming** de datos existe **Spark Structured Streaming** que es un motor de procesamiento en streaming. Este motor permite consultar un datasource infinito y volcar los resultados en tablas o en ficheros.
 
@@ -635,7 +638,7 @@ Esta arquitectura organiza los datos en capas. Esta arquitectura esta centrada e
   <img src="https://github.com/atrigueroshol/Databricks-Certified-Data-Engineer-Associate/blob/main/medallion.drawio.png?raw=true" alt="Texto alternativo">
 </p>
 
-##  Data Pipelines
+##  4. Puesta en producción de canalizaciones de datos
 
 ### Delta Live Tables
 
