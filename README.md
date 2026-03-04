@@ -7,8 +7,8 @@ El examen de certificación de Asociado en ingeniería de datos certificado por 
 El examen abarca lo siguiente:
 
 1.  Databricks Intelligence Platform - 10 %
-2.  Desarrollo e ingesta - 30 %
-3.  Procesamiento y transformaciones de datos - 31 %
+2.  Procesamiento y transformaciones de datos - 30 %
+3.  Desarrollo e ingesta - 31 %
 4.  Puesta en producción de canalizaciones de datos: 18 %
 5.  Gobernanza y calidad de los datos: 11 %
 
