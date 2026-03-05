@@ -598,53 +598,66 @@ RETURN CONCAT('USER_', UPPER(name));
 ```
 ## 3. Desarrollo e ingesta
 
-En Databricks para el procesamiento en **streaming** de datos existe **Spark Structured Streaming** que es un motor de procesamiento en streaming. Este motor permite consultar un datasource infinito y volcar los resultados en tablas o en ficheros.
+En Databricks hay tres formas diferentes de ingestar datos en la plataforma:
 
-### ReadStream
-Operación utilizada para definir una fuente de datos infinita. No es una acción por lo que no se ejecuta directamente.
-```python
-df = spark.readStream.table("name_table)
-```
-Una vez creado el df se pueden definir transformaciones y operaciones sobre el dataframe. Se debe tener en cuenta que en estos casos hay operaciones que no soportan los df en streaming como sorting y deduplicación.
+- Spark Structured Streaming
+- AUTO LOADER
+- COPY INTO
 
-### WriteStream
-Operación que define el destino del procesamiento y el modo de ejecución del stream.
-```python
-df.writeStream
-	.trigger(option)
-	.outputMode(option)
-	.option(option)
-	.table(option)
-```
-trigger:
- - Defecto: por defecto se procesa cada 500ms
-```python
-.trigger()
-```
- - Intervalo fijo: Procesa los datos en micro batch
-```python
-.trigger(processingTime="5 minutes")
-```
- - Batch: Procesa todos los datos de una vez y luego para.
-```python
-.trigger(once=true)
-```
- - Micro-batches: Porcesa todos los datos disponible en microbatches y luego para
-```pythonç
-trigger(availableNow=true)
-```
-outputMode:
- - append: se escriben solo nuevas filas 
- - complete: se reescribe la tabla entera
- 
-option(checkpointLocation, path): Sirve para saber que datos ya se han procesado y recuperarse tras fallos.
+### Spark Structured Streaming
+Spark Structured Streaming es un motor de procesamiento de datos en streaming que permite procesar flujos de datos infinitos de manera estructurada. Con este motor, se pueden leer datos continuamente desde una fuente (datasource) y volcar los resultados en tablas Delta, archivos u otros destinos.
 
-### Ingesta incremental desde ficheros
+Al igual que en Spark batch, Structured Streaming utiliza transformaciones y acciones, pero adaptadas al procesamiento de flujos.
 
-Necesitamos recibir data de nuevos ficheros desde la última ingesta de datos. No queremos reprocesar los ficheros ya procesados, solo queremos procesar los nuevos ficheros. 
-Hay dos métodos COPY INTO y Auto Loader.
+-   Transformación `readStream`: se utiliza para leer datos de manera continua desde una fuente, como archivos, Kafka, sockets o bases de datos.   
+-   Acción `writeStream`: se utiliza para escribir los resultados del flujo procesado hacia un destino, controlando el modo de salida y el checkpointing.
 
-#### COPY INTO
+#### ReadStream
+Es una **transformación** se utiliza para leer datos de manera continua desde una fuente, como archivos, Kafka, sockets o bases de datos.  
+```python
+df = spark.readStream.table("name_table")
+```
+Una vez creado el dataframe se pueden aplicar transformaciones y operaciones sobre el mismo. Se debe tener en cuenta que en estos casos hay operaciones que no soportan los df en streaming como sorting y deduplicación. Ejemplo completo:
+```python
+# 1. Leer datos en streaming desde una tabla Delta  
+df_stream  =  spark.readStream.table("clientes_bronze")  
+  
+# 2. Transformación: filtrar clientes mayores de 18 y seleccionar columnas  
+df_filtrado  =  df_stream.filter(col("edad") >  18).select("cliente_id", "nombre", "edad", "genero")
+```
+#### WriteStream
+Es una **acción** que define el destino del procesamiento y el modo de ejecución del stream. Esta acción utiliza varios parámetros
+
+- Trigger: Define cada cuanto tiempo se ejecuta la acción. Puede tomar los siguientes valores:
+
+| Trigger        | Descripción                                                                 | Ejemplo en PySpark                       |
+|----------------|-----------------------------------------------------------------------------|----------------------------------------|
+| Defecto        | Por defecto, Spark Structured Streaming procesa los datos cada 500 ms.      | `.trigger()`                             |
+| Intervalo fijo | Procesa los datos en micro-batches cada intervalo de tiempo definido.       | `.trigger(processingTime="5 minutes")`  |
+| Batch          | Procesa todos los datos disponibles una sola vez y luego se detiene.        | `.trigger(once=True)`                    |
+| Micro-batches  | Procesa todos los datos disponibles en micro-batches hasta completar todo. | `.trigger(availableNow=True)`            |
+
+- OutputMode: define el comportamiento de la acción y puede tomar los siguientes valores:
+	- Append: se escriben solo nuevas filas
+	- Complete: se reescribe la tabla entera
+- Option: Permite especificar opciones adicionales de escritura según el formato o el destino. Algunos ejemplos comunes:
+	-  `checkpointLocation`: ruta donde Spark guarda el estado y los checkpoints para garantizar **exactly-once** y tolerancia a fallos.
+	-   `path`: ruta de salida si se escribe en archivos o Delta Lake.
+	-   `mergeSchema`: en Delta Lake, permite actualizar automáticamente el esquema de la tabla si llegan nuevas columnas
+	
+- Table: Permite escribir directamente los resultados del streaming en una tabla Delta existente o nueva
+
+### AUTO LOADER
+Usa Spark Structured Streaming. Sirve para procesar una gran cantidad de datos que se encuentre en un directorio. Tiene todas las ventajas de Spark Structured Streaming.
+```python
+COPY INTO my_table
+FROM 'path'
+FILEFORMAT = format
+FORMAT_OPTIONS(options)
+COPY_OPTIONS(options)
+```
+
+### COPY INTO
 Es un comando en SQL que permite cargar datos de un directorio a una tabla. Cada vez que se ejecuta el comando solo carga los datos de los nuevos ficheros.
 ```sql
 COPY INTO my_table
@@ -653,27 +666,6 @@ FILEFORMAT = format
 FORMAT_OPTIONS(options)
 COPY_OPTIONS(options)
 ```
-#### Auto Loader
-Usa Spark Structured Streaming. Sirve para procesar una gran cantidad de datos que se encuentre en un directorio. Tiene todas las ventajas de Spark Structured Streaming. Ejemplo:
-```python
-spark.readStream
-	.format("cloudFiles")
-	. option("cloudFiles.format", source_format)
-	. writeStream
-		.option("checkpointLocation", directorio)
-		.table(table_name)
-```
-#### COPY INTO VS Auto Loader
-
-| COPY INTO| Auto Loader|
-Algunas cosas a considerar al elegir entre Auto Loader y el comando COPY INTO:
-
-Si vas a ingerir archivos en el orden de miles, puedes usar COPY INTO.
-
-Si esperas archivos en el orden de millones o más con el tiempo, usa Auto Loader.
-
-Si el esquema de tus datos va a evolucionar con frecuencia, Auto Loader ofrece mejores herramientas para la inferencia y evolución del esquema
-
 
 ### Arquitectura Medallion
 Esta arquitectura organiza los datos en capas. Esta arquitectura esta centrada en mejorar la estructura y la calidad de los datos según avanzan los datos por las capas.  
