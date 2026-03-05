@@ -773,10 +773,21 @@ También se pueden configurar permisos para los jobs y establecer quién puede v
 
 Hay una pestaña en la que podemos consultar todas las ejecuciones de nuestros jobs, incluyendo las ejecuciones que están ocurriendo en el momento.
 
-## Recomendaciones
+## Databricks SQL
 
-[Curso de udemy para aprendizaje](https://www.udemy.com/course/databricks-certified-data-engineer-associate/learn/lecture/34664610#overview)
-[Exámenes de práctica 1](https://www.udemy.com/course-dashboard-redirect/?course_id=5005556)
-[Exámenes de práctica 2](https://www.udemy.com/course-dashboard-redirect/?course_id=5802872)
+Databricks SQL es un data warehouse que permite ejecutar consultas SQL sobre grandes volúmenes de datos dentro de Databricks. Está enfocado principalmente a analistas de datos y perfiles de BI para realizar análisis, crear dashboards y consultar datos de forma eficiente.
+
+Databricks SQL está compuesto por las siguientes herramientas:
+
+-   SQL Editor: pestaña desde la que podemos crear nuestras consultas SQL, ejecutarlas, guardarlas y programarlas.
+-   Workspace: espacio donde se organizan y gestionan recursos como consultas, dashboards y otros objetos relacionados.
+-   Queries: sección donde podemos consultar y gestionar las consultas SQL que hemos guardado.
+-   Dashboards: pestaña desde la que podemos crear dashboards y visualizaciones a partir de consultas SQL.
+-   Alerts: permite crear alertas cuando el resultado de una consulta cumple ciertas condiciones.
+-   Data: sección desde la que podemos explorar catálogos, esquemas, tablas y vistas disponibles en la plataforma.
+-   SQL Warehouses: pestaña desde la que podemos gestionar los SQL Warehouses que se utilizan para ejecutar consultas.
+-   Query history: permite consultar el historial de consultas ejecutadas.
+    
+Un SQL Warehouse es el motor de ejecución de Databricks SQL, basado en clusters optimizados de Apache Spark que permiten ejecutar consultas SQL de forma escalable y eficiente.
  
 
