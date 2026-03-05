@@ -529,16 +529,23 @@ Las ventajas de utilizar STRUCT vs JSON son las siguientes:
 
 - Integración con ML y BI: Los campos de un STRUCT se pueden mapear directamente a features o columnas de dashboards, mientras que un JSON requiere parsing adicional.
 
-Uno de los casos de uso de Databricks es ingestar datos desde un fichero de tipo JSON. En una arquitectura Medallion estos datos los almacenariamos en la capa bronze en formato JSON para posteiormente transformarlos a STRUCT en silver.
+Uno de los casos de uso de Databricks es ingestar datos desde un fichero JSON y convertirlos a un tipo estructurado (STRUCT) para facilitar su análisis. Para realizar esta conversión, se utiliza la función from_json, que recibe como parámetros:
+
+1.  El campo que contiene el JSON (de tipo STRING).
+2.  El esquema del JSON, que puede definirse explícitamente o inferirse automáticamente.
+
+Para obtener automáticamente el esquema de un JSON, se puede usar la función schema_of_json, que devuelve la estructura correspondiente a los campos y tipos del JSON proporcionado.
+
 ```sql
--- BRONZE LAYER
-CREATE OR REPLACE TABLE clientes AS
-SELECT * FROM json `path`
--- SILVER LAYER JSON -> STRUCT
-SELECT
-  from_json(cliente, schema_of_json('{"name":"Alberto","last_name":"Trigueros","gender":"male"}')) AS cliente_struct
+SELECT  
+from_json(  
+cliente,  
+schema_of_json('{"name":"Alberto","last_name":"Trigueros","gender":"male"}')  
+) AS cliente_struct  
 FROM clientes_bronze
 ```
+Esta técnica es especialmente útil en pipelines de Bronze → Silver → Gold, donde se ingesta JSON crudo y se transforma a estructuras más manejables para análisis o procesamiento posterior.
+
 #### FLAT STRUCT
 Cuando tenemos una columna de tipo STRUCT con varios campos, muchas veces queremos aplanarla para tener los valores en columnas separadas y trabajar más fácilmente con ellos.  Un ejemplo de como hacerlo:
 ```sql
