@@ -773,7 +773,9 @@ También se pueden configurar permisos para los jobs y establecer quién puede v
 
 Hay una pestaña en la que podemos consultar todas las ejecuciones de nuestros jobs, incluyendo las ejecuciones que están ocurriendo en el momento.
 
-## Databricks SQL
+## 5. Gobernanza y calidad del dato
+
+### Databricks SQL
 
 Databricks SQL es un data warehouse que permite ejecutar consultas SQL sobre grandes volúmenes de datos dentro de Databricks. Está enfocado principalmente a analistas de datos y perfiles de BI para realizar análisis, crear dashboards y consultar datos de forma eficiente.
 
@@ -790,4 +792,72 @@ Databricks SQL está compuesto por las siguientes herramientas:
     
 Un SQL Warehouse es el motor de ejecución de Databricks SQL, basado en clusters optimizados de Apache Spark que permiten ejecutar consultas SQL de forma escalable y eficiente.
  
+### Permisos Databricks SQL
+En databricks se puede dar, quitar y denegar accesos a los objetos. La sintaxis para realizar las operaciones es la siguiente:
+```sql
+GRANT 'Privilege' ON 'Object' <object-name'> TO <user or group>
+```
+Los objetos sobre los que se puede dar permisos son los siguientes:
 
+| Objeto   | Descripción |
+|----------|-------------|
+| CATALOG | Controla el acceso a todo el catálogo |
+| SCHEMA   | Controla el acceso a la base de datos |
+| TABLE| Controla el acceso a la tabla (external o managed) |
+| VIEW| Controla el acceso a las vistas |
+| FUNCTION| Controla el acceso a las funciones |
+| ANY FILE | Controla el acceso a los ficheros |
+
+Existe una jerarquía de objetos. Si tienes permisos sobre un objeto un nivel más alto también los tendrás sobre los objetos de nieveles inferiores. La jerarquía de objetos es la siguiente:
+```mermaid
+graph
+CATALOG --> SCHEMA
+SCHEMA --> TABLES
+SCHEMA --> VIEWS
+SCHEMA --> FUNCTIONS
+```
+Teniendo en cuenta la jerarquía definida existen una serie de roles en Databricks:
+- Databricks administrator
+- Catalog owner
+- Database owner Table owner
+- Table owner
+
+Los permisos que se pueden dar a los objetos son los siguientes:
+
+| Permiso        | Descripción|
+|----------------|--------------------------------|
+| USAGE          | Permite uso del objeto|
+| SELECT         | Permite la lectura de datos|
+| MODIFY         | Permite insertar, borrar o modificar datos |
+| CREATE         | Permite crear objetos|
+| READ_METADATA  | Permite la lectura y visualización de metadatos |
+| ALL PRIVILEGES | Otorga todos los permisos|
+
+Para realizar una acción sobre un objeto siempre se debe tener el permiso USAGE. Por ejemplo para leer una tabla no solo debemos tener el permiso SELECT si no que también debemos tener USAGE.
+
+Para ver los permisos de un usuario se utiliza la operación SHOW GRANTS. 
+```sql
+SHOW GRANTS ON SCHEMA db_clientes
+SHOW GRANTS ON TABLE db_clientes.clientes
+```
+Ejemplos de asignación de permisos:
+```sql
+-- Dar permiso de uso sobre un catálogo  
+GRANT USAGE ON CATALOG sales TO analysts;  
+  
+-- Dar permiso de uso sobre un schema  
+GRANT USAGE ON SCHEMA sales.marketing TO analysts;  
+  
+-- Dar permiso de lectura sobre una tabla  
+GRANT SELECT ON TABLE sales.marketing.customers TO analysts;  
+  
+-- Dar permiso para modificar datos en una tabla  
+GRANT MODIFY ON TABLE sales.marketing.customers TO data_engineers;  
+  
+-- Dar permiso para crear tablas en un schema  
+GRANT CREATE ON SCHEMA sales.marketing TO data_engineers;  
+  
+-- Dar todos los permisos sobre una tabla  
+GRANT ALL PRIVILEGES ON TABLE sales.marketing.customers TO admin_role;
+```
+Para consultar y asignar permisos también podemos utilizar la pestaña DATA. La única desvenjataja que tiene la pestaña de Data con respecto a las querries de SQL es que no se puede dar permisos a los ficheros `ANY FILE`.
