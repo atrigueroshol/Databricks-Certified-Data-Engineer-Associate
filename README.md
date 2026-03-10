@@ -898,3 +898,18 @@ GRANT CREATE ON SCHEMA sales.marketing TO data_engineers;
 GRANT ALL PRIVILEGES ON TABLE sales.marketing.customers TO admin_role;
 ```
 Para consultar y asignar permisos también podemos utilizar la pestaña DATA. La única desvenjataja que tiene la pestaña de Data con respecto a las querries de SQL es que no se puede dar permisos a los ficheros `ANY FILE`.
+
+### Unity Catalog
+
+Unity Catalog es la solución de gobierno del dato de la plataforma de databricks. Es una solución centralizada en todos los workspace. 
+
+En Unity Catalog, el gobierno de datos se gestiona fuera de los workspaces y se puede acceder mediante la interfaz de usuario llamada Databricks Account Console.
+
+-   Usuarios y grupos se gestionan desde esta interfaz y pueden asignarse a uno o más workspaces.
+
+-   Los metastores también se gestionan desde esta interfaz y pueden asignarse a uno o más workspaces. Esto permite que los workspaces compartan metadatos, catálogos, esquemas, tablas y políticas de control de acceso.
+
+En Unity Catalog tenemos las siguientes identidades:
+- Users: Se identifican por el email. Un usuario puede tener el rol de account administrator.
+- Service Principles: Es una invididual identidad para usar en automatizaciones.
+- Grupos: sirve para agrupar grupos y services principles.
