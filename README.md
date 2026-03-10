@@ -85,6 +85,41 @@ Una vez finalizado la configuración se nos indica el número de DBU/h del clust
 
 Una vez creado el cluster podemos  ver los logs generados por los clusters, editar los permisos, editar la configuración del cluster (requiere un reinicio para la nueva configuración). También podemos apagar el cluster con la opción "terminating" lo que liberará los recursos de computo y almacenará los datos en el cloud storage garantizando la persistencia de los datos. 
 
+#### Clusters Buenas Prácticas
+
+La computación en databricks se divide en dos tipos:
+- Classic
+- Serverless
+
+##### Classic
+Los **Classic clusters** proporcionan una infraestructura flexible y configurable basada en máquinas virtuales gestionadas por el proveedor cloud.
+
+- All purpose: Se usan para el desarrollo de notebooks, análisis interactivo y consultas ad-hoc. Se crean manualmente, pueden iniciarse dede la interfaz de usuario, linea de comandos o API. Se pueden terminan manualmente o tras un periodo de inactividad. Tienen mayor coste que los jobs ya que permanecen más tiempo activos.
+
+- Jobs: Se utilizan para ejecutar jobs progamados y pipelines de ETL. Se crean automáticamente por el job scheduler, se eliminan cuando el job termina y son más baratos que los All purpose porque solo existen durante la ejecución.
+
+- Pools: Son un conjunto de máquinas virtuales pre-inicializadas que los clusters pueden reutilizar. Reducen el tiempo de arranque y escalado.
+
+- SQL Warehouses
+
+A la hora de crear nuestro classic cluster tenemos que elegir el tipo de nodos worker que queremos:
+
+- Memory Optimized: Se utiliza cuando hay muchas operaciones shuffle, cuando hay almacenamiento en cache y para cargas de ML.
+- Compute Optimized: Se utiliza para streaming jobs, para ELT con un full scan y para ejecutar comandos de OPTIMIZE con Z-ORDER.
+- Storage Optimized: Para aprovechar caching delta, para consultas ad-hoc y analisis interactivo de los datos.
+- GPU Optimized: Para cargas de ML y DL con una alta necesidad de memoria.
+- General Purpose: Se utiliza cuando no hay unos requisitos claros o para ejecutar comandos VACUUM.
+
+Cuando creamos el cluster también podemos seleccionar la opción de **spot instances**. Esta opción nos permite usar máquinas a un precio más barato porque usan capacidad sobrante, pero pueden ser interrumpidas por el provedor en cualquier momento. Son ideales para cargas batch o entrenamiento de machine learning.
+
+##### Serverless
+- Serverless: ofrece una simplificación y una gestión completa donde los recursos son manejados por databricks. Por lo que no hay necesidad de configurar manualmente la infraestructura.
+
+	- Notebooks
+	- Jobs
+	- Pipelines
+	- SQL warehouses
+
 
 ### Notebooks
 Los nootebooks por defecto tienen python como lenguaje pero se puede modificar. Además se pueden combinar varios lenguajes en un mismo nootebook añadiendo % al principio de una celda.
