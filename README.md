@@ -1,4 +1,7 @@
 # Databricks Certified Data Engineer Associate
+<p align="center">
+  <img src="https://github.com/atrigueroshol/Databricks-Certified-Data-Engineer-Associate/blob/main/associate_cert.png?raw=true" alt="Texto alternativo">
+</p>
 
 ## Información de la Certificación
 
