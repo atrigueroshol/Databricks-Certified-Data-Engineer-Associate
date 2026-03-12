@@ -392,6 +392,24 @@ AS
 SELECT id, monto from ventas;
 ```
 
+#### Columnas Calculadas (Generated)
+Delta Tables de Databricks, la palabra clave **GENERATED** se usa para columnas calculadas automáticamente a partir de otras columnas dentro de la misma tabla.
+Es una columna que no almacena valores manualmente, sino que se calcula automáticamente según una expresión definida en la tabla.
+Puede ser STORED o VIRTUAL:
+    
+   - STORED: el valor calculado se guarda físicamente en el almacenamiento de Delta.
+   - VIRTUAL: el valor se calcula cuando se consulta la tabla, no ocupa espacio en disco.
+
+Ejemplo:
+```sql
+CREATE TABLE ventas (
+    id INT,
+    precio DECIMAL(10,2),
+    cantidad INT,
+    total DECIMAL(10,2) GENERATED ALWAYS AS (precio * cantidad) STORED
+);
+```
+
 #### Restricciones (Constraints)
 Databricks soporta dos tipos de restricciones sobre las tablas:
 
