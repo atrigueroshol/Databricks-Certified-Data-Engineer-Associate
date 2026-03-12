@@ -348,36 +348,25 @@ Por defecto, siempre existe un schema llamado:
 
 En Databricks existen dos tipos principales de tablas, según cómo se gestione el almacenamiento de los datos.
 
-1.  Managed Tables (tablas administradas)
- 
-La tabla se crea dentro del directorio del schema.
+##### Managed Tables
+En las Managed Tables Databricks controla tanto el metadato como los datos físicos de la tabla. Por defecto, los datos se guardan en el almacenamiento gestionado por Databricks, normalmente bajo:
+```
+/user/hive/warehouse/<database>/<table>/
+```
+Ejemplo de creación de una managed table:
+```sql
+CREATE TABLE sales_managed ( id INT, amount DOUBLE )
+```
+Al ejecutar  `DROP TABLE`, se eliminan la tabla y los datos del almacenamiento.
 
-El metastore gestiona tanto los metadatos como los datos físicos.
+##### External Tables
+En las External Tables Databricks solo controla el metadato de la tabla, pero los datos permanecen fuera del control directo de Databricks, típicamente en un almacenamiento como DBFS, S3, ADLS o GCS. Para crear una External Table se debe especificar la ruta donde se van a guardar los archivos que almacenan los datos y para ello se usa la opción **LOCATION 'path'**
 
-Al ejecutar `DROP TABLE`, se eliminan la tabla y los datos del almacenamiento.
-
-Ejemplo conceptual:
-
-`CREATE TABLE sales_managed (
-  id INT,
-  amount DOUBLE );` 
-
-Uso recomendado cuando Databricks es el único sistema que accede a los datos. Se desea una gestión automática del ciclo de vida
-    
-2.  External Tables (tablas externas)
-3. 
-La tabla se crea fuera del directorio del schema, indicando explícitamente la ubicación mediante `LOCATION`.
-
-El metastore solo gestiona los metadatos, no los datos.
-
+Ejemplo de creación de una external table:
+```sql
+CREATE TABLE sales_external ( id INT, amount DOUBLE ) USING DELTA LOCATION 'abfss://data@storageaccount.dfs.core.windows.net/sales/'
+```
 Al ejecutar `DROP TABLE`, solo se eliminan los metadatos; los datos permanecen intactos.
-
-Ejemplo:
-
-`CREATE TABLE sales_external (
-  id INT,
-  amount DOUBLE ) USING DELTA
-LOCATION 'abfss://data@storageaccount.dfs.core.windows.net/sales/';`
 
 #### CTAS
 Otra de las formas de crear una tabla es mediante el uso de CTAS (Create Table As Select Statement).
