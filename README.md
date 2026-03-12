@@ -861,11 +861,6 @@ SCHEMA --> TABLES
 SCHEMA --> VIEWS
 SCHEMA --> FUNCTIONS
 ```
-Teniendo en cuenta la jerarquía definida existen una serie de roles en Databricks:
-- Databricks administrator
-- Catalog owner
-- Database owner Table owner
-- Table owner
 
 Sobre los objetos de tipo **catálogo** se pueden aplicar los siguientes permisos:
 | Permiso| Descripción |
@@ -888,11 +883,15 @@ Para el resto de objetos:
 | Vista   | SELECT, ALL PRIVILEGES, DENY         |
 | Función | EXECUTE, ALL PRIVILEGES, DENY        |
 
+Para ver los permisos de un objeto se necesita tener permiso de USAGE sobre los niveles superiores de jerarquía (Catálogo/Esquema)
+
 Para ver los permisos de un usuario se utiliza la operación SHOW GRANTS. 
 ```sql
 SHOW GRANTS ON SCHEMA db_clientes
 SHOW GRANTS ON TABLE db_clientes.clientes
 ```
+Para poder asignar permisos sobre un objeto se necesita se propietario del objeto o tener todos los privilegios sobre el mismo. Tener permiso sobre un objeto de jerarquía superior no te permite asignar permisos sobre un objeto.
+
 Ejemplos de asignación de permisos:
 ```sql
 -- Dar permiso de uso sobre un catálogo  
