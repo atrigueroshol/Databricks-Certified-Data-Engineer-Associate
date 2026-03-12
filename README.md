@@ -685,24 +685,36 @@ Es una **acción** que define el destino del procesamiento y el modo de ejecuci�
 	
 - Table: Permite escribir directamente los resultados del streaming en una tabla Delta existente o nueva
 
-### AUTO LOADER
-Usa Spark Structured Streaming. Sirve para procesar una gran cantidad de datos que se encuentre en un directorio. Tiene todas las ventajas de Spark Structured Streaming.
+### AUTOLOADER
+Autoloader es una herramienta para ingestar automáticamente archivos nuevos desde cloud storage hacia tablas o pipelines de datos.  Está construido sobre Apache Spark Structured Streaming y permite procesar solo los archivos que van llegando, sin volver a leer todo el dataset.
+
+Se usa  cuando los datos llegan como archivos nuevos en una carpeta o están en cloud storage (Amazon S3, Azure Data Lake Storage, Google Cloud Storage). Ejemplos típicos son logs de aplicaciones, archivos CSV/JSON que llegan continuamente y pipelines de ingestión a Delta Lake.
 ```python
-COPY INTO my_table
-FROM 'path'
-FILEFORMAT = format
-FORMAT_OPTIONS(options)
-COPY_OPTIONS(options)
+df = (spark.readStream
+      .format("cloudFiles")
+      .option("cloudFiles.format", "json")
+      .load("/path"))
+
+(df.writeStream  
+.format("delta")  
+.option("checkpointLocation", "/checkpoints/events")  
+.start("/data/bronze/events"))
 ```
+Parámetros: 
+-   `readStream` → usa streaming
+-   `format("cloudFiles")` → activa **Autoloader**. Es la diferencia con Apache Spark Structured Streaming
+-   `cloudFiles.format` → formato real del archivo (json, csv, parquet)
+-   `load()` → carpeta donde llegan los archivos
 
 ### COPY INTO
-Es un comando en SQL que permite cargar datos de un directorio a una tabla. Cada vez que se ejecuta el comando solo carga los datos de los nuevos ficheros.
+COPY INTO es un comando SQL para cargar datos desde archivos en cloud storage hacia una tabla. Sirve para ingestión de archivos de forma sencilla sin necesidad de crear pipelines de streaming.
+
+Se usa cuando quieres cargar archivos desde storage (Amazon S3, Azure Data Lake Storage, Google Cloud Storage) a una tabla, el proceso es batch (no streaming), Los archivos llegan ocasionalmente y necesitas una ingestión simple desde SQL. 
 ```sql
-COPY INTO my_table
-FROM 'path'
-FILEFORMAT = format
-FORMAT_OPTIONS(options)
-COPY_OPTIONS(options)
+COPY INTO events
+FROM '/mnt/raw/events/'
+FILEFORMAT = CSV
+FORMAT_OPTIONS ('header' = 'true')
 ```
 
 ### Arquitectura Medallion
