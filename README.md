@@ -831,7 +831,14 @@ Databricks SQL está compuesto por las siguientes herramientas:
 Un SQL Warehouse es el motor de ejecución de Databricks SQL, basado en clusters optimizados de Apache Spark que permiten ejecutar consultas SQL de forma escalable y eficiente.
  
 ### Permisos Databricks SQL
-En databricks se puede dar, quitar y denegar accesos a los objetos. La sintaxis para realizar las operaciones es la siguiente:
+En databricks se puede dar, quitar y denegar accesos a los objetos. 
+| Acción | Descripción |
+|--------|-------------|
+| GRANT  | Otorga permisos específicos a un usuario o grupo sobre un objeto|
+| DENY   | Niega explícitamente un permiso a un usuario o grupo sobre un objeto. Tiene prioridad sobre cualquier permiso otorgado, incluso heredado. Se usa para bloquear acceso específico. |
+| REVOKE | Elimina permisos previamente otorgados a un usuario o grupo sobre un objeto. Después de revocar, el usuario solo tendrá acceso si existen permisos heredados de otros grupos. |
+
+La sintaxis para realizar las operaciones es la siguiente:
 ```sql
 GRANT 'Privilege' ON 'Object' <object-name'> TO <user or group>
 ```
@@ -860,18 +867,26 @@ Teniendo en cuenta la jerarquía definida existen una serie de roles en Databric
 - Database owner Table owner
 - Table owner
 
-Los permisos que se pueden dar a los objetos son los siguientes:
+Sobre los objetos de tipo **catálogo** se pueden aplicar los siguientes permisos:
+| Permiso| Descripción |
+|--------|-------------|
+| USAGE| Permite al usuario usar el catálogo, es decir, listar esquemas dentro del catálogo y referenciar objetos que contienen. Sin esto, no puede acceder a los esquemas ni tablas dentro del catálogo.|
+| CREATE SCHEMA| Permite crear nuevos esquemas dentro del catálogo. |
+| ALL PRIVILEGES| Concede todos los permisos posibles sobre el catálogo, incluyendo USAGE y creación de esquemas|
 
-| Permiso        | Descripción|
-|----------------|--------------------------------|
-| USAGE          | Permite uso del objeto|
-| SELECT         | Permite la lectura de datos|
-| MODIFY         | Permite insertar, borrar o modificar datos |
-| CREATE         | Permite crear objetos|
-| READ_METADATA  | Permite la lectura y visualización de metadatos |
-| ALL PRIVILEGES | Otorga todos los permisos|
+Sobre los objetos de tipo **Esquema** se pueden aplicar los siguientes permisos:
+| Permiso| Descripción |
+|--------|-------------|
+| USAGE| Permite al usuario **usar el esquema**, listar tablas y vistas dentro del esquema y ejecutar operaciones si tiene permisos sobre las tablas.|
+| CREATE TABLE / CREATE VIEW| Permite crear nuevas tablas o vistas dentro del esquema. |
+| ALL PRIVILEGES| Concede **todos los permisos posibles** sobre el esquema, incluyendo USAGE y creación de objetos.|
 
-Para realizar una acción sobre un objeto siempre se debe tener el permiso USAGE. Por ejemplo para leer una tabla no solo debemos tener el permiso SELECT si no que también debemos tener USAGE.
+Para el resto de objetos:
+| Objeto  | Permisos válidos                     |
+| ------- | ------------------------------------ |
+| Tabla   | SELECT, MODIFY, ALL PRIVILEGES, DENY |
+| Vista   | SELECT, ALL PRIVILEGES, DENY         |
+| Función | EXECUTE, ALL PRIVILEGES, DENY        |
 
 Para ver los permisos de un usuario se utiliza la operación SHOW GRANTS. 
 ```sql
