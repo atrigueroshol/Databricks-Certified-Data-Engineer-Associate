@@ -56,7 +56,7 @@ En Databricks existen dos planos principales:
 
 ### Clusters
 
-Recordemos que un cluster es un conjunto de máquinas que trabajan juntas. A las maquinas de un cluster se las conoce como nodos. 
+Recordemos que un cluster es un conjunto de máquinas que trabajan juntas. A las máquinas de un cluster se las conoce como nodos. 
 ```
 Cluster
 ├─ Master Node (ResourceManager)
@@ -65,9 +65,9 @@ Cluster
         ├─ Driver (coordina)
         └─ Executors (ejecutan tareas)
 ```
-Para profundizar sobre esta tema revisar [documentación de pyspark](https://github.com/atrigueroshol/PYSPARK).
+Para profundizar sobre este tema revisar [documentación de pyspark](https://github.com/atrigueroshol/PYSPARK).
 
-Para crear un cluster debemos ir a la pestaña de "compute" en el menú de  la izquierda y seleccionar la opción de "create compute" y se nos abrirá un formulario para crear un cluster con las siguientes opciones:
+Para crear un cluster debemos ir a la pestaña de "compute" en el menú de la izquierda y seleccionar la opción de "create compute" y se nos abrirá un formulario para crear un cluster con las siguientes opciones:
 
  - Policy:
  - Nº de nodos:
@@ -76,32 +76,32 @@ Para crear un cluster debemos ir a la pestaña de "compute" en el menú de  la i
  - Access mode: El número de personas que van a poder utilizar el cluster.
 	 - Single user
 	 - Shared
- - Version de databricks: es la imagen virtual que viene con las versiones de Spark y Scala instaladas.
+ - Versión de Databricks: es la imagen virtual que viene con las versiones de Spark y Scala instaladas.
  - Worker type:
-	 - Se debe elegir Cores y Memoria de los nodos workers.
+	 - Se deben elegir cores y memoria de los nodos workers.
 	 - El número mínimo y máximo de workers en caso de habilitar el autoescalado. Si se deshabilita la opción de autoescalado simplemente se deberá seleccionar el número de workers fijo.
 	 - Spot instances: habilitar esta opción utiliza máquinas virtuales más baratas pero interrumpibles por el proveedor cloud. No se recomienda para procesos críticos, streaming y cargas que no toleran reintentos.
  - Se debe elegir la configuración del nodo driver.
  - Apagado del cluster después de un tiempo de inactividad.
 
-Una vez finalizado la configuración se nos indica el número de DBU/h del cluster si estuviera activo. En la página de databricks se puede consultar el precio de DBU/h.
+Una vez finalizada la configuración se nos indica el número de DBU/h del cluster si estuviera activo. En la página de Databricks se puede consultar el precio de DBU/h.
 
-Una vez creado el cluster podemos  ver los logs generados por los clusters, editar los permisos, editar la configuración del cluster (requiere un reinicio para la nueva configuración). También podemos apagar el cluster con la opción "terminating" lo que liberará los recursos de computo y almacenará los datos en el cloud storage garantizando la persistencia de los datos. 
+Una vez creado el cluster podemos ver los logs generados por los clusters, editar los permisos, editar la configuración del cluster (requiere un reinicio para la nueva configuración). También podemos apagar el cluster con la opción "terminating", lo que liberará los recursos de cómputo y almacenará los datos en el cloud storage garantizando la persistencia de los datos. 
 
 #### Clusters Buenas Prácticas
 
-La computación en databricks se divide en dos tipos:
+La computación en Databricks se divide en dos tipos:
 - Classic
 - Serverless
 
 ##### Classic
 Los **Classic clusters** proporcionan una infraestructura flexible y configurable basada en máquinas virtuales gestionadas por el proveedor cloud.
 
-- All purpose: Se usan para el desarrollo de notebooks, análisis interactivo y consultas ad-hoc. Se crean manualmente, pueden iniciarse dede la interfaz de usuario, linea de comandos o API. Se pueden terminan manualmente o tras un periodo de inactividad. Tienen mayor coste que los jobs ya que permanecen más tiempo activos.
+- All purpose: Se usan para el desarrollo de notebooks, análisis interactivo y consultas ad-hoc. Se crean manualmente, pueden iniciarse desde la interfaz de usuario, línea de comandos o API. Se pueden terminar manualmente o tras un periodo de inactividad. Tienen mayor coste que los jobs ya que permanecen más tiempo activos.
 
-- Jobs: Se utilizan para ejecutar jobs progamados y pipelines de ETL. Se crean automáticamente por el job scheduler, se eliminan cuando el job termina y son más baratos que los All purpose porque solo existen durante la ejecución.
+- Jobs: Se utilizan para ejecutar jobs programados y pipelines de ETL. Se crean automáticamente por el job scheduler, se eliminan cuando el job termina y son más baratos que los All purpose porque solo existen durante la ejecución.
 
-- Pools: Son un conjunto de máquinas virtuales pre-inicializadas que los clusters pueden reutilizar. Reducen el tiempo de arranque y escalado.
+- Pools: Son un conjunto de máquinas virtuales preinicializadas que los clusters pueden reutilizar. Reducen el tiempo de arranque y escalado.
 
 - SQL Warehouses
 
@@ -109,14 +109,14 @@ A la hora de crear nuestro classic cluster tenemos que elegir el tipo de nodos w
 
 - Memory Optimized: Se utiliza cuando hay muchas operaciones shuffle, cuando hay almacenamiento en cache y para cargas de ML.
 - Compute Optimized: Se utiliza para streaming jobs, para ELT con un full scan y para ejecutar comandos de OPTIMIZE con Z-ORDER.
-- Storage Optimized: Para aprovechar caching delta, para consultas ad-hoc y analisis interactivo de los datos.
+- Storage Optimized: Para aprovechar caching delta, para consultas ad-hoc y análisis interactivo de los datos.
 - GPU Optimized: Para cargas de ML y DL con una alta necesidad de memoria.
 - General Purpose: Se utiliza cuando no hay unos requisitos claros o para ejecutar comandos VACUUM.
 
-Cuando creamos el cluster también podemos seleccionar la opción de **spot instances**. Esta opción nos permite usar máquinas a un precio más barato porque usan capacidad sobrante, pero pueden ser interrumpidas por el provedor en cualquier momento. Son ideales para cargas batch o entrenamiento de machine learning.
+Cuando creamos el cluster también podemos seleccionar la opción de **spot instances**. Esta opción nos permite usar máquinas a un precio más barato porque usan capacidad sobrante, pero pueden ser interrumpidas por el proveedor en cualquier momento. Son ideales para cargas batch o entrenamiento de machine learning.
 
 ##### Serverless
-- Serverless: ofrece una simplificación y una gestión completa donde los recursos son manejados por databricks. Por lo que no hay necesidad de configurar manualmente la infraestructura.
+- Serverless: ofrece una simplificación y una gestión completa donde los recursos son manejados por Databricks. Por lo que no hay necesidad de configurar manualmente la infraestructura.
 
 	- Notebooks
 	- Jobs
@@ -125,20 +125,21 @@ Cuando creamos el cluster también podemos seleccionar la opción de **spot inst
 
 
 ### Notebooks
-Los nootebooks por defecto tienen python como lenguaje pero se puede modificar. Además se pueden combinar varios lenguajes en un mismo nootebook añadiendo % al principio de una celda.
+Los notebooks por defecto tienen Python como lenguaje pero se puede modificar. Además, se pueden combinar varios lenguajes en un mismo notebook añadiendo % al principio de una celda.
 ```
 %python   → Ejecuta código Python (por defecto)
 %sql      → Ejecuta consultas SQL (Spark SQL)
 %scala    → Ejecuta código Scala
 %r        → Ejecuta código R
 %md       → Celdas de documentación en Markdown
-%run      → permite ejecutar otro nootebook
-%fs       → permite interactuar con el sistema de archivos
+%run      → Permite ejecutar otro notebook
+%fs       → Permite interactuar con el sistema de archivos
 ```
-Además Datrabricks proporciona **dbutils** que permite interactuar con el entorno del workspace y del cluster, facilitando tareas de administración, exploración de datos y gestión de pipelines desde los notebooks.
+Además, Databricks proporciona **dbutils**, que permite interactuar con el entorno del workspace y del cluster, facilitando tareas de administración, exploración de datos y gestión de pipelines desde los notebooks.
 
 #### Explorador de Variables
-El Variable Explorer permite ver de forma rápida todas las variables definidas en una sesión del notebook, mostrando su nombre, tipo de dato y valor actual.  Además, para DataFrames de Spark y Pandas, muestra dimensiones, nombres de columnas y permite consultar el esquema completo al pasar el cursor.
+El Variable Explorer permite ver de forma rápida todas las variables definidas en una sesión del notebook, mostrando su nombre, tipo de dato y valor actual. Además, para DataFrames de Spark y Pandas, muestra dimensiones, nombres de columnas y permite consultar el esquema completo al pasar el cursor.
+
 ### Python Debugger
 Databricks Notebooks ahora permiten depuración interactiva para inspeccionar la ejecución de código Python en tiempo real. Puedes definir breakpoints directamente en el notebook para pausar la ejecución y revisar valores de variables, lo que facilita detectar errores de lógica.
 
@@ -148,7 +149,7 @@ Para iniciar el depurador en Databricks:
 3.  Se inicia una sesión de depuración donde puedes avanzar paso a paso usando la barra de herramientas.
 
 ##### Versiones
-Databricks permite ver las anteriores versiones de un nootebook y restaurarlas. Unicamente tenemos versiones pero no tenemos ramas de versionado.
+Databricks permite ver las anteriores versiones de un notebook y restaurarlas. Únicamente tenemos versiones pero no tenemos ramas de versionado.
 
 ### Carpetas Git
 
@@ -162,7 +163,7 @@ Permiten desarrollar código en notebooks y archivos siguiendo buenas prácticas
 
 Proporcionan control de código fuente para proyectos de datos e IA mediante integración con proveedores Git (como GitHub, GitLab, Azure DevOps, etc.).
 
-En databricks se puede: 
+En Databricks se puede: 
 -   Clonar un repositorio remoto
 -   Hacer _push_ y _pull_  
 -   Crear y gestionar ramas
@@ -171,18 +172,18 @@ En databricks se puede:
 -   Comparar visualmente cambios antes de hacer commit
 -   Resolver conflictos de merge desde la interfaz
 
-Destacar que **no se puede crear una pull request ni eliminar una rama**. Estas acciones deben realizarse desde el proveedor de git.
+Destacar que **no se puede crear una pull request ni eliminar una rama**. Estas acciones deben realizarse desde el proveedor de Git.
 
-### DeltaLake
-DeltaLake es un framework de código abierto que añade transacciones ACID, control de versiones y fiabilidad a los data lakes.
-Es un componente que esta desplegado en el cluster como parte del runtime. Cuando creamos una tabla delta se almacena en el almacenamiento en varios ficheros de datos de tipo parquet y delta logs en formato JSON.
+### Delta Lake
+Delta Lake es un framework de código abierto que añade transacciones ACID, control de versiones y fiabilidad a los data lakes.  
+Es un componente que está desplegado en el cluster como parte del runtime. Cuando creamos una tabla Delta se almacena en el almacenamiento en varios ficheros de datos de tipo Parquet y Delta logs en formato JSON.
 
  -   **Data Files**  
     Los datos se almacenan en **ficheros Parquet**. Cada vez que se realiza una operación de **escritura, actualización o borrado**, se crean **nuevos ficheros Parquet** con los datos actualizados y se **marcan como obsoletos** los ficheros anteriores (no se eliminan inmediatamente).
     
 -   **Delta Log**  
     El _Delta Log_ guarda un **registro de todas las transacciones** realizadas sobre la tabla y actúa como la **fuente de verdad** de su estado.  
-    Cada fichero **JSON** contiene información sobre la operación realizada (add, remove, metadata, etc.) y los **ficheros de datos afectados**
+    Cada fichero **JSON** contiene información sobre la operación realizada (add, remove, metadata, etc.) y los **ficheros de datos afectados**.
 
 #### Crear Tablas
 ```sql
@@ -193,6 +194,7 @@ surname STRING,
 age INTEGER
 )
 ```
+
 #### Insertar Datos
 ```sql
 INSERT INTO  users (id, name, surname, age) VALUES
@@ -202,11 +204,13 @@ INSERT INTO  users (id, name, surname, age) VALUES
 (4, 'Javier', 'Pérez', 40),
 (5, 'Sofía', 'López', 30);
 ```
-#### Descripcción de la tabla
+
+#### Descripción de la tabla
 La operación **DESCRIBE DETAIL** devuelve metadatos completos de la tabla: 
 ```sql
 DESCRIBE DETAIL  users
 ```
+
 Ejemplo.
 ```
 format: delta
