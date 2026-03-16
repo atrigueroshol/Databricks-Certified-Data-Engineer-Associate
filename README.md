@@ -338,7 +338,8 @@ CLUSTER BY (country, order_date);
 
 En Databricks, una base de datos equivale conceptualmente a un schema en el Hive Metastore. Por esta razón, existen dos formas equivalentes de crear una base de datos:
 ```sql
-CREATE DATABASE db_name; CREATE SCHEMA db_name; 
+CREATE DATABASE db_name; 
+CREATE SCHEMA db_name; 
 ```
 Ambos comandos son sinónimos y producen el mismo resultado.
 
@@ -369,7 +370,7 @@ Ejemplo de creación de una managed table:
 ```sql
 CREATE TABLE sales_managed ( id INT, amount DOUBLE )
 ```
-Al ejecutar  `DROP TABLE`, se eliminan la tabla y los datos del almacenamiento.
+Al ejecutar `DROP TABLE`, se eliminan la tabla y los datos del almacenamiento.
 
 ##### External Tables
 En las External Tables Databricks solo controla el metadato de la tabla, pero los datos permanecen fuera del control directo de Databricks, típicamente en un almacenamiento como DBFS, S3, ADLS o GCS. Para crear una External Table se debe especificar la ruta donde se van a guardar los archivos que almacenan los datos y para ello se usa la opción **LOCATION 'path'**
@@ -386,7 +387,7 @@ Otra de las formas de crear una tabla es mediante el uso de CTAS (Create Table A
 CREATE TABLE table_1 AS
 	SELECT col_1, col_3 AS new_col_3 FROM table_2
 ```
-La ventaja que tiene es que no se define el esquema manualmente si no que directamente lo infiere del SELECT. Además la tabla ya viene con los datos que obtiene de la consulta.
+La ventaja que tiene es que no se define el esquema manualmente, sino que directamente lo infiere del SELECT. Además, la tabla ya viene con los datos que obtiene de la consulta.
 
 #### Comentarios en tablas
 En Databricks podemos añadir comentarios a nuestras tablas y columnas mediante el comando **COMMENT** "texto a introducir". Ejemplos:
@@ -401,16 +402,18 @@ COMMENT "Tabla que almacena las ventas diarias por transacción";
 CREATE TABLE tabla_ejemplo
 COMMENT "Tabla que almacena las ventas diarias por transacción"
 AS
-SELECT id, monto from ventas;
+SELECT id, monto FROM ventas;
 ```
 
-#### Columnas Calculadas (Generated)
-Delta Tables de Databricks, la palabra clave **GENERATED** se usa para columnas calculadas automáticamente a partir de otras columnas dentro de la misma tabla.
+#### Columnas calculadas (Generated)
+En las Delta Tables de Databricks, la palabra clave **GENERATED** se usa para columnas calculadas automáticamente a partir de otras columnas dentro de la misma tabla.
+
 Es una columna que no almacena valores manualmente, sino que se calcula automáticamente según una expresión definida en la tabla.
-Puede ser STORED o VIRTUAL:
+
+Puede ser **STORED** o **VIRTUAL**:
     
-   - STORED: el valor calculado se guarda físicamente en el almacenamiento de Delta.
-   - VIRTUAL: el valor se calcula cuando se consulta la tabla, no ocupa espacio en disco.
+   - **STORED**: el valor calculado se guarda físicamente en el almacenamiento de Delta.
+   - **VIRTUAL**: el valor se calcula cuando se consulta la tabla, no ocupa espacio en disco.
 
 Ejemplo:
 ```sql
@@ -421,7 +424,6 @@ CREATE TABLE ventas (
     total DECIMAL(10,2) GENERATED ALWAYS AS (precio * cantidad) STORED
 );
 ```
-
 #### Restricciones (Constraints)
 Databricks soporta dos tipos de restricciones sobre las tablas:
 
