@@ -15,17 +15,17 @@ El examen abarca lo siguiente:
 4.  Puesta en producción de canalizaciones de datos: 18 %
 5.  Gobernanza y calidad de los datos: 11 %
 
-El examen consta de 45 preguntas  con un límite de tiempo de 90 minutos.
+El examen consta de 45 preguntas con un límite de tiempo de 90 minutos.
 
-Para información más detella del examen revisar [información de la certificación](https://github.com/atrigueroshol/Databricks-Certified-Data-Engineer-Associate/blob/main/databricks-certified-data-engineer-associate-exam-guide-july-30-2025-0.pdf)
+Para información más detallada del examen revisar [información de la certificación](https://github.com/atrigueroshol/Databricks-Certified-Data-Engineer-Associate/blob/main/databricks-certified-data-engineer-associate-exam-guide-july-30-2025-0.pdf)
 
 ## 1. Databricks Intelligence Platform
 
-### Qué es DataBricks
+### Qué es Databricks
 
 Databricks es una plataforma multicloud para data lakehouse basada en Apache Spark.
 
-Un **data lakehouse** es una plataforma que unifica las ventajas de un datalake y un datawarehouse.
+Un **data lakehouse** es una plataforma que unifica las ventajas de un data lake y un data warehouse.
 
 <p align="center">
   <img src="https://github.com/atrigueroshol/Databricks-Certified-Data-Engineer-Associate/blob/main/lakehouse.drawio.png?raw=true" alt="Texto alternativo">
