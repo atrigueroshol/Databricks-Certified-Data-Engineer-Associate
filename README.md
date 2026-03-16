@@ -234,39 +234,45 @@ version | timestamp           | operation | operationMetrics
 3       | 2026-02-16 09:40:00 | MERGE     | {numTargetRowsUpdated=3}
 
 ```
-#### Consultar tabla y versiones Antiguas
-En databricks se puede consultar una tabla y versiones anteriores.
+
+#### Consultar tabla y versiones antiguas
+En Databricks se puede consultar una tabla y versiones anteriores.
 ```sql
 -- VERSION ACTUAL
 SELECT * FROM users;
 --VERSION ANTIGUA
-SELECT * FROM  users VERSION AS OF 1;
-SELECT  *  FROM  users@v1;
+SELECT * FROM users VERSION AS OF 1;
+SELECT * FROM users@v1;
 ```
 Para saber el número de la versión que queremos consultar podemos utilizar DESCRIBE HISTORY.
-#### Restaurar una version antigua
-En databricks podemos restaurar una versión antigua de la tabla con **RESTORE TABLE**.
+
+#### Restaurar una versión antigua
+En Databricks podemos restaurar una versión antigua de la tabla con **RESTORE TABLE**.
 ```sql
 RESTORE TABLE users TO VERSION AS OF 1;
 ```
+
 #### Compactar ficheros
 Con **OPTIMIZE** podemos optimizar el rendimiento de las consultas reorganizando los ficheros de datos. Como ya sabemos cada operación sobre una tabla crea un archivo y con OPTIMIZE unifica esos archivos pequeños en archivos más grandes.
 ```sql
 OPTIMIZE users;
 ```
+
 #### Indexación de ficheros
-Para la indexación de nuestos datos debemos utilizar la operación **ZORDER** que reorganiza los datos de los ficheros para mejorar el rendimiento de las consultas. 
+Para la indexación de nuestros datos debemos utilizar la operación **ZORDER**, que reorganiza los datos de los ficheros para mejorar el rendimiento de las consultas. 
 ```sql
 OPTIMIZE users
 ZORDER BY (surname, age);
 ```
+
 #### Limpieza de ficheros
-Con la operación **VACUUM** eliminamos los ficheros de datos que ya no estan en uso. Debemos tener cuidado a la hora de ejecutar este comando ya que una vez hecho no podemos restaurar o consultar versiones anteriores de la tabla.
+Con la operación **VACUUM** eliminamos los ficheros de datos que ya no están en uso. Debemos tener cuidado a la hora de ejecutar este comando ya que una vez hecho no podemos restaurar o consultar versiones anteriores de la tabla.
 ```sql
 VACUUM users
 ```
+
 #### DATA FILE LAYOUT 
-Data file layout es la organización física de los ficheros que forman una tabla Delta. Optimizando la capa de data files se puede mejorar significativamente el tiempo de ejecución y el consumo de recursos** de las consultas.
+Data file layout es la organización física de los ficheros que forman una tabla Delta. Optimizando la capa de data files se puede mejorar significativamente el tiempo de ejecución y el consumo de recursos de las consultas.
 
 Vamos a estudiar tres técnicas principales para optimizarla.
 
@@ -281,6 +287,7 @@ Databricks crea una partición por cada valor distinto de la columna por la que 
 PARTITIONED BY (age);` 
  
 El particionado puede mejorar mucho el rendimiento de las consultas cuando las tablas Delta son grandes, ya que permite pruning de particiones (solo se leen las carpetas necesarias).
+
 Buenas prácticas
 -   Particionar por columnas con baja cardinalidad
 -   Usar columnas frecuentes en cláusulas `WHERE`
@@ -299,15 +306,16 @@ ZORDER BY (surname, age);`
 
 Es efectivo cuando las columnas usadas en filtros o joins tienen media o alta cardinalidad y cuando las consultas combinan varias columnas.
 
-Como desventajas tiene que cada ejecución de `OPTIMIZE ZORDER` reescribe archivos. Tras insertar nuevos datos, es necesario volver a ejecutar `OPTIMIZE`. Puede ser costoso a nivel de cómputo, por lo que no debe ejecutarse continuamente
+Como desventajas tiene que cada ejecución de `OPTIMIZE ZORDER` reescribe archivos. Tras insertar nuevos datos, es necesario volver a ejecutar `OPTIMIZE`. Puede ser costoso a nivel de cómputo, por lo que no debe ejecutarse continuamente.
 
 La última técnica de optimización es **Liquid Clustering**, que consiste en una evolución del Z-order, ofreciendo mayor flexibilidad, mejor rendimiento y menor sobrecarga operativa.
 
-A diferencia de los enfoques tradicionales Liquid Clustering no es compatible con PARTITIONING ni con ZORDER. El clustering se gestiona de forma dinámica, sin necesidad de reescribir completamente la tabla cada vez que cambian los patrones de acceso. Está especialmente optimizado para cargas de trabajo con consultas analíticas cambiantes.
+A diferencia de los enfoques tradicionales, Liquid Clustering no es compatible con PARTITIONING ni con ZORDER. El clustering se gestiona de forma dinámica, sin necesidad de reescribir completamente la tabla cada vez que cambian los patrones de acceso. Está especialmente optimizado para cargas de trabajo con consultas analíticas cambiantes.
 
 Para activar o ejecutar el clustering, simplemente se utiliza el comando OPTIMIZE sobre la tabla. No es necesario especificar ZORDER BY.
 
 Las claves de clustering pueden definirse de dos formas:
+
 1.  Modo manual  
     Seleccionando las columnas más utilizadas en los filtros (WHERE) y joins de las consultas.
     
