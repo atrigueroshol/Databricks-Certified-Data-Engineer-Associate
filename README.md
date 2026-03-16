@@ -449,31 +449,32 @@ CREATE TABLE orders (
 #Sobre una tabla ya creada
 ALTER TABLE orders ADD CONSTRAINT amount_positive CHECK (amount > 0);
 ```
-Se debe tener en cuenta que si intentamos crear una restricción sobre una tabla con datos y alguno de las filas no cumple la restricción dará error al crear la restricción. Una vez creada la restricción si intentamos insertar una fila que no comple las condiciones la operación devolverá un error.
+Se debe tener en cuenta que si intentamos crear una restricción sobre una tabla con datos y alguna de las filas no cumple la restricción dará error al crear la restricción. Una vez creada la restricción, si intentamos insertar una fila que no cumple las condiciones la operación devolverá un error.
 
 #### Clonar Deltas
-Existen dos formas de clonar las tablas delta en databricks. Esto nos puede servir para tener un backup o una copia de los datos para hacer pruebas.
+Existen dos formas de clonar las tablas Delta en Databricks. Esto nos puede servir para tener un backup o una copia de los datos para hacer pruebas.
 
  - Deep Clone: Copia los datos y los metadatos de la tabla. Para sincronizar cambios se debe ejecutar de nuevo el comando. Este comando no es eficiente cuando la cantidad de datos es muy grande.
 ```sql
 CREATE TABLE table_clone DEEP CLONE source_table
 ```
- - Shallow Clone: Unicamente crea una copia de los delta transactions logs. Es muy útil para hacer pruebas sin correr el riesgo de modificar la tabla original.
- ```sql
+ - Shallow Clone: Únicamente crea una copia de los Delta transaction logs. Es muy útil para hacer pruebas sin correr el riesgo de modificar la tabla original.
+```sql
 CREATE TABLE table_clone SHALLOW CLONE source_table
 ```
+
 #### Vistas
-Una vista es una tabla virtual que no tiene datos físicos., es una query de SQL que apunta a las tablas físicas. En databricks hay tres tipos de vistas. 
+Una vista es una tabla virtual que no tiene datos físicos, es una query de SQL que apunta a las tablas físicas. En Databricks hay tres tipos de vistas. 
 
  - Stored Views: Son objetos persistentes en la base de datos.
 ```sql
 CREATE VIEW view_name AS query
 ```
- - Temporary Views: Son objetos que solo persisten durante la sesion de spark. Una vez terminada la sesion se borran.
+ - Temporary Views: Son objetos que solo persisten durante la sesión de Spark. Una vez terminada la sesión se borran.
 ```sql
 CREATE TEMP VIEW view_name AS query
 ```
- - Global Temporary Views: Son objetos vinculados al cluster. Mientras el cluster este levantado cualquier notebook puede acceder a la vista.
+ - Global Temporary Views: Son objetos vinculados al cluster. Mientras el cluster esté levantado cualquier notebook puede acceder a la vista.
 ```sql
 CREATE GLOBAL TEMP VIEW view_name AS query
 ```
@@ -483,37 +484,41 @@ CREATE GLOBAL TEMP VIEW view_name AS query
 ### Consultas a ficheros
 Para consultar datos de un archivo en Databricks debemos utilizar lo siguiente:
 ```sql
-SELECT  *  FROM file_format.`path`
+SELECT * FROM file_format.`path`
 -- Ejemplos
 SELECT * FROM csv.`/mnt/datos/ventas/ventas_2025.csv`
 SELECT * FROM json.`/mnt/datos/clientes/clientes.json`
 SELECT * FROM parquet.`/mnt/datos/ventas/ventas_2025.parquet`
 SELECT * FROM delta.`/mnt/datos/ventas_delta`
 ```
-Esta consulta funciona tanto para formatos self-describing (JSON, Parquet, ORC, Avro, Delta) como para formatos non self-describing (CSV, TSV, TXT).
-En los formatos non self-describing es necesario proporcionar opciones adicionales (por ejemplo header, sep, inferSchema o un esquema explícito).
+Esta consulta funciona tanto para formatos self-describing (JSON, Parquet, ORC, Avro, Delta) como para formatos non self-describing (CSV, TSV, TXT).  
+En los formatos non self-describing es necesario proporcionar opciones adicionales (por ejemplo header, sep, inferSchema o un esquema explícito).  
 En el path se puede indicar un fichero concreto, un patrón de ficheros o un directorio completo.
 
 Si queremos obtener los datos como strings de ficheros de tipo texto (JSON, CSV, TSV y TXT) podemos utilizar:
 ```sql
-SELECT  *  FROM text.`path`
+SELECT * FROM text.`path`
 ```
 Si queremos obtener los datos como bytes de ficheros de tipo imagen podemos utilizar:
 ```sql
-SELECT  *  FROM binaryFile.`/path/to/file`
+SELECT * FROM binaryFile.`/path/to/file`
 ```
-Normalmente, cuando extraemos datos de ficheros externos queremos cargarlos en el lakehouse y para ello podemos usar CTAS (CREATE TABLE AS SELECT). Con CTAS no se define el esquema explícitamente en la sentencia CREATE TABLE, ya que el esquema se deriva del SELECT. Sin embargo, es posible controlar el esquema mediante casts, alias o transformaciones en la consulta. Las opciones del fichero están soportadas y deben especificarse en la cláusula FROM file_format.\path``. La principal limitación de CTAS es que no permite definir columnas explícitamente en el CREATE TABLE.
+
+Normalmente, cuando extraemos datos de ficheros externos queremos cargarlos en el lakehouse y para ello podemos usar CTAS (CREATE TABLE AS SELECT). Con CTAS no se define el esquema explícitamente en la sentencia CREATE TABLE, ya que el esquema se deriva del SELECT. Sin embargo, es posible controlar el esquema mediante casts, alias o transformaciones en la consulta. Las opciones del fichero están soportadas y deben especificarse en la cláusula `FROM file_format.\`path\``. La principal limitación de CTAS es que no permite definir columnas explícitamente en el CREATE TABLE.
+
 ```sql
-CREATE  TABLE table_name AS  SELECT  *  FROM file_format.`path`
+CREATE TABLE table_name AS SELECT * FROM file_format.`path`
 ```
+
 Cuando usamos CTAS para la creación de tablas no se puede definir el esquema de la tabla, lo que puede suponer un problema. Por ello existe esta otra opción:
 ```sql
-CREATE  TABLE table_name  
+CREATE TABLE table_name  
  (col_name1 col_type1, ...)  
 USING data_source  
 OPTIONS (key1 = val1, key2 = val2, ...)  
 LOCATION path
 ```
+
 De esta forma siempre estaremos creando una tabla externa que referencia ficheros almacenados externamente y, por lo tanto, no es una tabla de tipo Delta y pierde las ventajas asociadas a este tipo de tablas. Para solventar esto, una solución consiste en crear una vista temporal y, posteriormente, usar CTAS para crear una tabla a partir de dicha vista.
 
 En la última versión de Databricks se ha introducido una función llamada `read_files`, que facilita el proceso de creación de tablas a partir de ficheros.
@@ -529,26 +534,28 @@ FROM read_files(
   inferSchema => 'true'
 )
 ```
-
 ### Operaciones de escritura y sobreescritura
-Existen varias formas de sobreescribir datos en una tabla. Hay ventajas en sobreescribir una tabla en vez de borrarla y crear una nueva tabla. Por ejemplo la version antigua de la tabla sigue existiendo y podemos volver a ella. Además sobreescribir una tabla es más rápido ya que no necesita borrar ningún fichero. Además es una operación que se hace en paralelo y se puede seguir consultando la tabla mientras el proceso termina de sobreescribir.
+Existen varias formas de sobreescribir datos en una tabla. Hay ventajas en sobreescribir una tabla en vez de borrarla y crear una nueva tabla. Por ejemplo, la versión antigua de la tabla sigue existiendo y podemos volver a ella. Además, sobreescribir una tabla es más rápido ya que no necesita borrar ningún fichero. También es una operación que se hace en paralelo y se puede seguir consultando la tabla mientras el proceso termina de sobreescribir.
 
-El primer metodo para reescribir una tabla es usando **CREATE OR REPLACE** que remplaza todo el contenido de la tabla.
+El primer método para reescribir una tabla es usando **CREATE OR REPLACE**, que reemplaza todo el contenido de la tabla.
 ```sql
 CREATE OR REPLACE TABLE name AS
 SELECT * FROM format.`path`
 ```
-El segundo metodo para sobreescribir en una tabla es usando **INSERT OVERWRITE**. Los datos de la tabla serán reemplazados por los datos de la query. Esta secuencia solo puede sobreescribir en una tabla pero no puede crearla y por lo tanto solo puede escribir datos que coincidan con el esquema de la tabla o si no recibiremos una excepción al ejecutar la operación.
+
+El segundo método para sobreescribir una tabla es usando **INSERT OVERWRITE**. Los datos de la tabla serán reemplazados por los datos de la query. Esta secuencia solo puede sobreescribir en una tabla pero no puede crearla y, por lo tanto, solo puede escribir datos que coincidan con el esquema de la tabla o si no recibiremos una excepción al ejecutar la operación.
 ```sql
 INSERT OVERWRITE name
 SELECT * FROM format.`path`
 ```
-Si queremos insertar datos en una tabla podemos usar INSERT INTO. Si ejecutamos la orden varias veces tenremos registros duplicados. 
+
+Si queremos insertar datos en una tabla podemos usar **INSERT INTO**. Si ejecutamos la orden varias veces tendremos registros duplicados. 
 ```sql
 INSERT INTO name
 SELECT * FROM format.`path`
 ```
-Si queremos evitar tener registros duplicados podemos usar MERGE.
+
+Si queremos evitar tener registros duplicados podemos usar **MERGE**.
 ```sql
 CREATE OR REPLACE TEMP VIEW name_view AS
 SELECT * FROM format.`path`
@@ -563,16 +570,18 @@ WHEN NOT MATCHED THEN INSERT *
 
 ### Transformaciones avanzadas
 
-#### JSON Y STRUCT
+#### JSON y STRUCT
 Databricks permite tener columnas de tipo JSON y de tipo STRUCT. 
+
 - JSON: Es un String que contiene JSON. 
 ```python
 JSON
-cliente{"name": "Alberto", "last_name": "Trigueros", "gender":male"}
+cliente {"name": "Alberto", "last_name": "Trigueros", "gender": "male"}
 COMO ACCEDER AL CAMPO
 cliente:name
 ```
-- STRUCT: Es un tipo nativo de SPARK
+
+- STRUCT: Es un tipo nativo de Spark.
 ```python
 StructType([
     StructField("nombre", StringType(), True),
@@ -581,19 +590,21 @@ StructType([
 COMO ACCEDER AL CAMPO
 cliente.name
 ```
-Las ventajas de utilizar STRUCT vs JSON son las siguientes:
-- Rendimiento: Un STRUCT ya está tipado y Spark puede optimizar consultas de manera nativa
 
-- Compatibilidad con Delta Lake y Medallion Architecture: En tablas Silver o Gold, se suelen usar STRUCTs para mantener los datos limpios y tipados, evitando strings que podrían contener datos inconsistentes.
+Las ventajas de utilizar **STRUCT vs JSON** son las siguientes:
 
-- Integración con ML y BI: Los campos de un STRUCT se pueden mapear directamente a features o columnas de dashboards, mientras que un JSON requiere parsing adicional.
+- **Rendimiento**: Un STRUCT ya está tipado y Spark puede optimizar consultas de manera nativa.
 
-Uno de los casos de uso de Databricks es ingestar datos desde un fichero JSON y convertirlos a un tipo estructurado (STRUCT) para facilitar su análisis. Para realizar esta conversión, se utiliza la función from_json, que recibe como parámetros:
+- **Compatibilidad con Delta Lake y Medallion Architecture**: En tablas Silver o Gold, se suelen usar STRUCTs para mantener los datos limpios y tipados, evitando strings que podrían contener datos inconsistentes.
+
+- **Integración con ML y BI**: Los campos de un STRUCT se pueden mapear directamente a features o columnas de dashboards, mientras que un JSON requiere parsing adicional.
+
+Uno de los casos de uso de Databricks es ingestar datos desde un fichero JSON y convertirlos a un tipo estructurado (STRUCT) para facilitar su análisis. Para realizar esta conversión se utiliza la función **from_json**, que recibe como parámetros:
 
 1.  El campo que contiene el JSON (de tipo STRING).
 2.  El esquema del JSON, que puede definirse explícitamente o inferirse automáticamente.
 
-Para obtener automáticamente el esquema de un JSON, se puede usar la función schema_of_json, que devuelve la estructura correspondiente a los campos y tipos del JSON proporcionado.
+Para obtener automáticamente el esquema de un JSON se puede usar la función **schema_of_json**, que devuelve la estructura correspondiente a los campos y tipos del JSON proporcionado.
 
 ```sql
 SELECT  
@@ -603,10 +614,11 @@ schema_of_json('{"name":"Alberto","last_name":"Trigueros","gender":"male"}')
 ) AS cliente_struct  
 FROM clientes_bronze
 ```
-Esta técnica es especialmente útil en pipelines de Bronze → Silver → Gold, donde se ingesta JSON crudo y se transforma a estructuras más manejables para análisis o procesamiento posterior.
+
+Esta técnica es especialmente útil en pipelines de **Bronze → Silver → Gold**, donde se ingesta JSON crudo y se transforma a estructuras más manejables para análisis o procesamiento posterior.
 
 #### FLAT STRUCT
-Cuando tenemos una columna de tipo STRUCT con varios campos, muchas veces queremos aplanarla para tener los valores en columnas separadas y trabajar más fácilmente con ellos.  Un ejemplo de como hacerlo:
+Cuando tenemos una columna de tipo STRUCT con varios campos, muchas veces queremos aplanarla para tener los valores en columnas separadas y trabajar más fácilmente con ellos. Un ejemplo de cómo hacerlo:
 ```sql
 CREATE OR REPLACE TABLE clientes_flat AS
 SELECT id, cliente.name, cliente.last_name FROM cliente
