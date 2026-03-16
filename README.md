@@ -631,48 +631,53 @@ Databricks permite tener columnas de tipo array. Para flatear los arrays en dife
 --   productos ARRAY<STRING>
 -- )
 -- Explode
-SELECT usuario, explode(productos) as producto FROM clientes
+SELECT usuario, explode(productos) AS producto FROM clientes
 ```
-Otra de las funciones utilizadas con las columnas de tipo array es **collect_set**. La operación **collect_set** es una función de agregación que permite obtener valores unicos por la agrupación. Es necesario hacer un group by para poder utilizarla.
+
+Otra de las funciones utilizadas con las columnas de tipo array es **collect_set**. La operación **collect_set** es una función de agregación que permite obtener valores únicos por la agrupación. Es necesario hacer un `GROUP BY` para poder utilizarla.
+
 INPUT:
 | user_id | producto |
 |--------:|------------------|
-| 1       | "A"      |
-| 2       | "C"            |
-| 1       | "A"            |
-| 1       | "B"            |
+| 1       | "A"              |
+| 2       | "C"              |
+| 1       | "A"              |
+| 1       | "B"              |
+
 ```sql
 SELECT  
-user_id,  
-collect_set(producto) AS productos_unicos  
+  user_id,  
+  collect_set(producto) AS productos_unicos  
 FROM ventas  
-GROUP  BY user_id;
+GROUP BY user_id;
 ```
-Output:
+
+OUTPUT:
 | user_id | productos_unicos |
-|--------:|------------------|
-| 1       | ["A", "B"]       |
-| 2       | ["C"]            |
+|--------:|-----------------|
+| 1       | ["A", "B"]      |
+| 2       | ["C"]           |
 
 ### UDF
-Para crear una funcion en Databricks utilizaremos la siguiente estructura
+Para crear una función en Databricks utilizaremos la siguiente estructura:
 ```sql
 CREATE FUNCTION name(field TYPE)
 RETURNS type
 RETURN logic
 ```
-ejemplo:
+Ejemplo:
 ```sql
 CREATE OR REPLACE FUNCTION to_user_label(name STRING)
 RETURNS STRING
 RETURN CONCAT('USER_', UPPER(name));
 ```
+
 ## 3. Desarrollo e ingesta
 
 En Databricks hay tres formas diferentes de ingestar datos en la plataforma:
 
 - Spark Structured Streaming
-- AUTO LOADER
+- AUTOLOADER
 - COPY INTO
 
 ### Spark Structured Streaming
@@ -680,26 +685,28 @@ Spark Structured Streaming es un motor de procesamiento de datos en streaming qu
 
 Al igual que en Spark batch, Structured Streaming utiliza transformaciones y acciones, pero adaptadas al procesamiento de flujos.
 
--   Transformación `readStream`: se utiliza para leer datos de manera continua desde una fuente, como archivos, Kafka, sockets o bases de datos.   
--   Acción `writeStream`: se utiliza para escribir los resultados del flujo procesado hacia un destino, controlando el modo de salida y el checkpointing.
+- Transformación `readStream`: se utiliza para leer datos de manera continua desde una fuente, como archivos, Kafka, sockets o bases de datos.   
+- Acción `writeStream`: se utiliza para escribir los resultados del flujo procesado hacia un destino, controlando el modo de salida y el checkpointing.
 
 #### ReadStream
-Es una **transformación** se utiliza para leer datos de manera continua desde una fuente, como archivos, Kafka, sockets o bases de datos.  
+Es una **transformación** que se utiliza para leer datos de manera continua desde una fuente.  
 ```python
 df = spark.readStream.table("name_table")
 ```
-Una vez creado el dataframe se pueden aplicar transformaciones y operaciones sobre el mismo. Se debe tener en cuenta que en estos casos hay operaciones que no soportan los df en streaming como sorting y deduplicación. Ejemplo completo:
+
+Una vez creado el DataFrame se pueden aplicar transformaciones y operaciones sobre el mismo. Se debe tener en cuenta que en estos casos hay operaciones que no soportan los DataFrames en streaming como sorting y deduplicación. Ejemplo completo:
 ```python
 # 1. Leer datos en streaming desde una tabla Delta  
 df_stream  =  spark.readStream.table("clientes_bronze")  
   
 # 2. Transformación: filtrar clientes mayores de 18 y seleccionar columnas  
-df_filtrado  =  df_stream.filter(col("edad") >  18).select("cliente_id", "nombre", "edad", "genero")
+df_filtrado  =  df_stream.filter(col("edad") > 18).select("cliente_id", "nombre", "edad", "genero")
 ```
-#### WriteStream
-Es una **acción** que define el destino del procesamiento y el modo de ejecución del stream. Esta acción utiliza varios parámetros
 
-- Trigger: Define cada cuanto tiempo se ejecuta la acción. Puede tomar los siguientes valores:
+#### WriteStream
+Es una **acción** que define el destino del procesamiento y el modo de ejecución del stream. Esta acción utiliza varios parámetros:
+
+- **Trigger**: Define cada cuánto tiempo se ejecuta la acción. Puede tomar los siguientes valores:
 
 | Trigger        | Descripción                                                                 | Ejemplo en PySpark                       |
 |----------------|-----------------------------------------------------------------------------|----------------------------------------|
@@ -708,20 +715,22 @@ Es una **acción** que define el destino del procesamiento y el modo de ejecuci�
 | Batch          | Procesa todos los datos disponibles una sola vez y luego se detiene.        | `.trigger(once=True)`                    |
 | Micro-batches  | Procesa todos los datos disponibles en micro-batches hasta completar todo. | `.trigger(availableNow=True)`            |
 
-- OutputMode: define el comportamiento de la acción y puede tomar los siguientes valores:
-	- Append: se escriben solo nuevas filas
-	- Complete: se reescribe la tabla entera
-- Option: Permite especificar opciones adicionales de escritura según el formato o el destino. Algunos ejemplos comunes:
-	-  `checkpointLocation`: ruta donde Spark guarda el estado y los checkpoints para garantizar **exactly-once** y tolerancia a fallos.
-	-   `path`: ruta de salida si se escribe en archivos o Delta Lake.
-	-   `mergeSchema`: en Delta Lake, permite actualizar automáticamente el esquema de la tabla si llegan nuevas columnas
+- **OutputMode**: Define el comportamiento de la acción y puede tomar los siguientes valores:
+  - Append: se escriben solo nuevas filas
+  - Complete: se reescribe la tabla entera
+
+- **Option**: Permite especificar opciones adicionales de escritura según el formato o el destino. Algunos ejemplos comunes:
+  - `checkpointLocation`: ruta donde Spark guarda el estado y los checkpoints para garantizar **exactly-once** y tolerancia a fallos.
+  - `path`: ruta de salida si se escribe en archivos o Delta Lake.
+  - `mergeSchema`: en Delta Lake, permite actualizar automáticamente el esquema de la tabla si llegan nuevas columnas
 	
-- Table: Permite escribir directamente los resultados del streaming en una tabla Delta existente o nueva
+- **Table**: Permite escribir directamente los resultados del streaming en una tabla Delta existente o nueva.
 
 ### AUTOLOADER
-Autoloader es una herramienta para ingestar automáticamente archivos nuevos desde cloud storage hacia tablas o pipelines de datos.  Está construido sobre Apache Spark Structured Streaming y permite procesar solo los archivos que van llegando, sin volver a leer todo el dataset.
+Autoloader es una herramienta para ingestar automáticamente archivos nuevos desde cloud storage hacia tablas o pipelines de datos. Está construido sobre Apache Spark Structured Streaming y permite procesar solo los archivos que van llegando, sin volver a leer todo el dataset.
 
-Se usa  cuando los datos llegan como archivos nuevos en una carpeta o están en cloud storage (Amazon S3, Azure Data Lake Storage, Google Cloud Storage). Ejemplos típicos son logs de aplicaciones, archivos CSV/JSON que llegan continuamente y pipelines de ingestión a Delta Lake.
+Se usa cuando los datos llegan como archivos nuevos en una carpeta o están en cloud storage (Amazon S3, Azure Data Lake Storage, Google Cloud Storage). Ejemplos típicos son logs de aplicaciones, archivos CSV/JSON que llegan continuamente y pipelines de ingestión a Delta Lake.
+
 ```python
 df = (spark.readStream
       .format("cloudFiles")
@@ -733,16 +742,18 @@ df = (spark.readStream
 .option("checkpointLocation", "/checkpoints/events")  
 .start("/data/bronze/events"))
 ```
+
 Parámetros: 
--   `readStream` → usa streaming
--   `format("cloudFiles")` → activa **Autoloader**. Es la diferencia con Apache Spark Structured Streaming
--   `cloudFiles.format` → formato real del archivo (json, csv, parquet)
--   `load()` → carpeta donde llegan los archivos
+- `readStream` → usa streaming
+- `format("cloudFiles")` → activa **Autoloader**, diferencia con Spark Structured Streaming normal
+- `cloudFiles.format` → formato real del archivo (json, csv, parquet)
+- `load()` → carpeta donde llegan los archivos
 
 ### COPY INTO
 COPY INTO es un comando SQL para cargar datos desde archivos en cloud storage hacia una tabla. Sirve para ingestión de archivos de forma sencilla sin necesidad de crear pipelines de streaming.
 
-Se usa cuando quieres cargar archivos desde storage (Amazon S3, Azure Data Lake Storage, Google Cloud Storage) a una tabla, el proceso es batch (no streaming), Los archivos llegan ocasionalmente y necesitas una ingestión simple desde SQL. 
+Se usa cuando quieres cargar archivos desde storage (Amazon S3, Azure Data Lake Storage, Google Cloud Storage) a una tabla; el proceso es batch (no streaming). Los archivos llegan ocasionalmente y necesitas una ingestión simple desde SQL. 
+
 ```sql
 COPY INTO events
 FROM '/mnt/raw/events/'
