@@ -971,15 +971,57 @@ Para consultar y asignar permisos también podemos utilizar la pestaña DATA. La
 
 ### Unity Catalog
 
-Unity Catalog es la solución de gobierno del dato de la plataforma de databricks. Es una solución centralizada en todos los workspace. 
+**Databricks Unity Catalog** es la herramienta de gobierno del dato de Databricks.
 
-En Unity Catalog, el gobierno de datos se gestiona fuera de los workspaces y se puede acceder mediante la interfaz de usuario llamada Databricks Account Console.
+Es una solución centralizada a nivel de cuenta que funciona a través de múltiples workspaces y en distintos proveedores cloud. Unifica el gobierno de los datos y otros activos como tablas, vistas, archivos y modelos de machine learning. Esta solución está basada en SQL para la gestión de permisos y el acceso a los datos.
 
--   Usuarios y grupos se gestionan desde esta interfaz y pueden asignarse a uno o más workspaces.
+```mermaid
+graph LR
+    subgraph UC["Unity Catalog"]
+        U[Gestión de usuarios]
+        M[UC Metastore]
+        A[Control de acceso]
+    end
 
--   Los metastores también se gestionan desde esta interfaz y pueden asignarse a uno o más workspaces. Esto permite que los workspaces compartan metadatos, catálogos, esquemas, tablas y políticas de control de acceso.
+    style UC fill:#f5f5f5,stroke:#333,stroke-width:2px
+    style U fill:#ffffff,stroke:#666
+    style M fill:#ffffff,stroke:#666
+    style A fill:#ffffff,stroke:#666
+```
 
-En Unity Catalog tenemos las siguientes identidades:
-- Users: Se identifican por el email. Un usuario puede tener el rol de account administrator.
-- Service Principles: Es una invididual identidad para usar en automatizaciones.
-- Grupos: sirve para agrupar grupos y services principles.
+Antes de Databricks Unity Catalog, los usuarios y grupos se definían a nivel de cada workspace. Con Unity Catalog, los usuarios y grupos se gestionan a nivel de cuenta (account level), es decir, fuera de los workspaces, y luego se pueden asignar a uno o varios workspaces.  
+Para gestionar usuarios y grupos se utiliza la interfaz de Databricks Account Console.
+
+El modelo de seguridad de Databricks está formado por lo siguiente:
+
+-   Privilegios: Son los permisos que se pueden asignar entre una identidad y un objeto (por ejemplo, SELECT, MODIFY, etc.).
+-   Objetos: Son las entidades sobre las que se aplican los privilegios (catálogos, esquemas, tablas, vistas, etc.).  
+-   Identidades (principals): Pueden ser usuarios, grupos o service principals
+
+Por lo tanto la jerarquía de UC es la siguiente:
+
+```mermaid
+graph
+UC_Metastore --> CATALOG 
+CATALOG --> SCHEMA
+SCHEMA --> TABLES
+SCHEMA --> VIEWS
+SCHEMA --> FUNCTIONS
+```
+UC Metastore es el repositorio central de metadatos donde se almacena toda la información de Catálogos, Esquemas, Tablas y vistas, Permisos (privilegios), Ubicaciones de datos en el storage.
+
+Dentro de Unity Catalog, **Delta Sharing** es una funcionalidad que permite compartir datos de forma segura, en tiempo real y sin necesidad de duplicarlos, manteniendo el gobierno y control de acceso entre distintos sistemas, cuentas u organizaciones.
+
+La arquitectura lógica de delta sharing cuenta con los siguientes componentes:
+- Proveedor:Es quien tiene los datos y decide compartirlos, define qué tablas/vistas comparte, controla permisos y usa Unity Catalog.
+- Share: Es un contenedor lógico de datos compartidos (tablas y vistas)
+- Recipiente: Es quien accede a los datos (otro worksapece o herramienta externa)
+
+Hay dos formas de compartir los datos:
+- Databricks to Databricks: la integración es nativa y se gestiona directamente mediante identidades de Databricks y Unity Catalog, lo que simplifica la configuración y el control de accesos.
+- Open Delta Sharing: se utiliza un protocolo abierto basado en APIs REST y credenciales seguras (profile files), lo que permite compartir datos con sistemas externos a Databricks.
+
+Desde el punto de vista de costes, al no duplicarse los datos no se incrementa el almacenamiento. Sin embargo, pueden existir costes asociados al acceso, especialmente si el proveedor y el consumidor se encuentran en diferentes regiones o proveedores cloud, debido a la transferencia de datos (egress). Por ello, es recomendable ubicar los datos y los consumidores en regiones cercanas cuando sea posible.
+
+El acceso a los datos es de solo lectura. Los consumidores pueden consultar la información compartida, pero no pueden modificar ni escribir sobre los datos originales, lo que garantiza la integridad y el control por parte del proveedor
+
