@@ -5,7 +5,7 @@
 
 ## Información de la Certificación
 
-El examen de certificación de Asociado en ingeniería de datos certificado por Databricks evalúa tu capacidad para utilizar Databricks Data Intelligence Platform con el fin de completar tareas introductorias de ingeniería de datos.
+El examen de Databricks Certified Data Engineer Associate evalúa tu capacidad para utilizar Databricks Data Intelligence Platform con el fin de completar tareas introductorias de ingeniería de datos.
 
 El examen abarca lo siguiente:
 
